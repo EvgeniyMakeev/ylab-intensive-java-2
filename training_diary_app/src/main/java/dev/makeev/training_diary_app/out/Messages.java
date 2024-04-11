@@ -1,6 +1,7 @@
 package dev.makeev.training_diary_app.out;
 
 
+import dev.makeev.training_diary_app.model.Statistic;
 import dev.makeev.training_diary_app.model.Training;
 import dev.makeev.training_diary_app.model.TypeOfTraining;
 import dev.makeev.training_diary_app.model.UserLogEvent;
@@ -32,8 +33,9 @@ public class Messages {
                 "2. Edite training.\n" +
                 "3. Delete training.\n" +
                 "4. Show trainings history.\n" +
-                "5. Admin options.\n" +
-                "6. Log out.\n\n" +
+                "5. Show statistic of trainings.\n" +
+                "6. Admin options.\n" +
+                "7. Log out.\n\n" +
                 "0. Exit");
     }
     public void loginMessage() {
@@ -74,6 +76,7 @@ public class Messages {
         console.output("1. Select from the list.\n" +
                 "2. Add a new type.");
     }
+
     public void addTypeOfTrainingMessage() {
         console.output("Write the type of training: ");
     }
@@ -104,6 +107,13 @@ public class Messages {
                 "3. Show log for user.\n" +
                 "4. Show log.\n" +
                 "5. Back to User menu.\n\n" +
+                "0. Exit");
+    }
+    public void statisticMenu() {
+        console.output("================ STATISTIC MENU ================\n" +
+                "1. Show statistic of trainings by duration.\n" +
+                "2. Show statistic of trainings by calories burned.\n" +
+                "3. Back to User menu.\n\n" +
                 "0. Exit");
     }
     public void loginMenu() {
@@ -173,5 +183,60 @@ public class Messages {
                     .append("\n");
         }
         console.output(result.toString());
+    }
+
+    public void printStatistic(Statistic statistic, int userOpinion) {
+        StringBuilder resultForPrint = new StringBuilder();
+        switch (userOpinion) {
+            case 1 -> resultForPrint.append("Duration");
+            case 2 -> resultForPrint.append("Calories Burned");
+        }
+
+        List<Training> trainings = statistic.valuesList();
+        int numbersOfTraining = trainings.size();
+
+        resultForPrint.append(" statistic form ")
+                .append(statistic.from())
+                .append(" to ")
+                .append(statistic.to())
+                .append(": ")
+                .append("\nNumber of trainings: ")
+                .append(numbersOfTraining)
+                .append(" | Minimum value: ")
+                .append(statistic.minValue())
+                .append(" | Average value: ")
+                .append(statistic.averageValue())
+                .append(" | Maximum value: ")
+                .append(statistic.maxValue())
+                .append(" | Total value: ")
+                .append(statistic.totalValue())
+                .append("\n");
+
+        int highOfGraphic = 5;
+
+        for (int i = 0; i < highOfGraphic; i++) {
+            for (int j = 0; j < numbersOfTraining; j++) {
+                switch (userOpinion) {
+                    case 1 -> {
+                        if (trainings.get(j).duration() >=
+                                (statistic.maxValue() / highOfGraphic) * (highOfGraphic - (i + 1))) {
+                            resultForPrint.append("# ");
+                        } else {
+                            resultForPrint.append("  ");
+                        }
+                    }
+                    case 2 -> {
+                        if (trainings.get(j).caloriesBurned() >=
+                                (statistic.maxValue() / highOfGraphic) * (highOfGraphic - (i + 1))) {
+                            resultForPrint.append("# ");
+                        } else {
+                            resultForPrint.append("  ");
+                        }
+                    }
+                }
+            }
+            resultForPrint.append("\n");
+        }
+        console.output(resultForPrint.toString());
     }
 }

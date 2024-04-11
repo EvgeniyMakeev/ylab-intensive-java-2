@@ -33,6 +33,7 @@ public class TrainingOfUserRepository {
         return mapOfTrainings;
     }
 
+
     public void delete(int index, String login) {
         mapOfTrainings.get(login).remove(index);
     }

@@ -18,6 +18,7 @@ public class UserRepository {
         String login = "admin";
         User admin = new User(login, "admin", true);
         mapOfUser.put(login, admin);
+        mapOfUser.put("Hooch", new User("Hooch", "123", false));
     }
 
     public void add(User user) {

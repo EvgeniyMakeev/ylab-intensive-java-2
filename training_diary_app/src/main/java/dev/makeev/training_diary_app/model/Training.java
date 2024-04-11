@@ -5,8 +5,8 @@ import java.time.LocalDate;
 public record Training(
         TypeOfTraining type,
         LocalDate date,
-        double duration,
-        double caloriesBurned) {
+        Double duration,
+        Double caloriesBurned) {
 }
 
 //Map<String, String> additionalInformation

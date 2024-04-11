@@ -3,7 +3,9 @@ package dev.makeev.training_diary_app.service;
 import dev.makeev.training_diary_app.exceptions.*;
 import dev.makeev.training_diary_app.in.Input;
 import dev.makeev.training_diary_app.in.InputImpl;
+import dev.makeev.training_diary_app.model.Statistic;
 import dev.makeev.training_diary_app.model.Training;
+import dev.makeev.training_diary_app.model.TypeOfTraining;
 import dev.makeev.training_diary_app.model.User;
 import dev.makeev.training_diary_app.out.Messages;
 
@@ -11,7 +13,6 @@ import dev.makeev.training_diary_app.out.Messages;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
 
 public class AppUI {
     private final UserService userService = new UserService();
@@ -24,7 +25,7 @@ public class AppUI {
 
     private final Messages console = new Messages();
 
-    private Optional<String> loginOfCurrentUser = Optional.empty();
+    private String loginOfCurrentUser = null;
 
     private int userOption = -1;
 
@@ -39,6 +40,7 @@ public class AppUI {
     private boolean showLogForUser = false;
     private boolean showEditMenu = false;
     private boolean showDeleteMenu = false;
+    private boolean showStatisticMenu = false;
 
 
     public void start() {
@@ -77,7 +79,7 @@ public class AppUI {
 
     private void loginMenu() {
         boolean goBack = false;
-        while (loginOfCurrentUser.isEmpty()) {
+        while (loginOfCurrentUser == null) {
             console.loginMenu();
             String login = input.getString();
             console.passwordMessage();
@@ -85,8 +87,8 @@ public class AppUI {
                 try {
                     userService.checkCredentials(login, input.getString());
                     console.print("Access is allowed!");
-                    loginOfCurrentUser = Optional.of(login);
-                    adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+                    loginOfCurrentUser = login;
+                    adminService.addEvent(loginOfCurrentUser,
                             "Login.");
                     break;
                 } catch (VerificationException e) {
@@ -97,8 +99,8 @@ public class AppUI {
                     if (!userService.existByLogin(login)) {
                         userService.addUser(login, input.getString());
                         console.print("Account was created!");
-                        loginOfCurrentUser = Optional.of(login);
-                        adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+                        loginOfCurrentUser = login;
+                        adminService.addEvent(loginOfCurrentUser,
                                 "Account was created and login.");
                         break;
                     } else {
@@ -127,44 +129,48 @@ public class AppUI {
 
     private void userMenu() {
         while (showUserMenu) {
-            console.greetingMessage(loginOfCurrentUser.orElseThrow());
+            console.greetingMessage(loginOfCurrentUser);
             console.userMenu();
             if (userOption < 0) {
-                userOption = input.getInt(6);
+                userOption = input.getInt(7);
             }
             switch (userOption) {
                 case 1 -> //if "Add new training." was selected
                         showAddTrainingMenu = true;
-                case 2 -> {//if "Show trainings history." was selected
+                case 2 -> {//if "Edite training." was selected
                     showEditMenu = true;
                     showTrainingHistory();
                     }
-                case 3 -> {//if "Edite training." was selected
+                case 3 -> {//if "Delete training." was selected
                     showDeleteMenu = true;
                     showTrainingHistory();
                     }
-                case 4 ->  //if "Delete training." was selected
+                case 4 -> //if "Show trainings history." was selected
                         showTrainingHistory();
-                case 5 -> //if "Admin options" was selected
+                case 5 -> {//if "Show statistic of trainings." was selected
+                    showStatisticMenu = true;
+                    showStatisticOfTrainingMenu();
+                    }
+                case 6 -> //if "Admin options" was selected
                         goToAdminOptions();
-                case 6 -> //if "Log out" was selected
+                case 7 -> //if "Log out" was selected
                         logOut();
                 case 0 ->  //if "Exit" was selected
                         System.exit(0);
             }
             //if "Add new training" was selected
             if (showAddTrainingMenu) {
-                enterTrainingMenu(-1);
+                showTrainingMenu(-1);
             }
             //if "Admin options" was selected
             if (showAdminMenu) {
-                adminMenu();
+                showAdminMenu();
             }
         }
     }
 
-    private void enterTrainingMenu(int indexForEdit) {
-        String typeOfTraining = null;
+    private void showTrainingMenu(int indexForEdit) {
+        TypeOfTraining typeOfTraining = null;
         console.choiceTypeOfTrainingMessage();
         console.getTypesOfTraining(trainingsService.getAllTypesOfTraining());
         console.choiceTypeMessage();
@@ -183,10 +189,9 @@ public class AppUI {
             }
             case 2 -> {
                 console.addTypeOfTrainingMessage();
-                typeOfTraining = input.getString();
-                trainingsService.addTypeOfTraining(typeOfTraining);
+                trainingsService.addTypeOfTraining(input.getString());
                 console.print("A new type of training was added.");
-                adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+                adminService.addEvent(loginOfCurrentUser,
                         "Add a new type of training.");
             }
         }
@@ -202,12 +207,12 @@ public class AppUI {
         try {
             if (!showEditMenu) {
                 trainingsService.addTrainingOfUser(
-                        loginOfCurrentUser.orElseThrow(), typeOfTraining, date, duration, caloriesBurned);
+                        loginOfCurrentUser, typeOfTraining, date, duration, caloriesBurned);
                 console.addSuccessful();
-                adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+                adminService.addEvent(loginOfCurrentUser,
                         "Added new training.");
             } else {
-                editTraining(indexForEdit, loginOfCurrentUser.orElseThrow(), typeOfTraining,
+                editTraining(indexForEdit, loginOfCurrentUser, typeOfTraining,
                         date, duration, caloriesBurned);
             }
         } catch (EmptyException e) {
@@ -225,48 +230,123 @@ public class AppUI {
     }
 
     private void showTrainingHistory() {
-        List<Training> trainingsList = trainingsService.getAllTrainingsForUser(loginOfCurrentUser.orElseThrow());
+        List<Training> trainingsList = trainingsService.getAllTrainingsForUser(loginOfCurrentUser);
         int trainingsListSize = trainingsList.size();
         console.printTrainingsForUser(trainingsList,
-                loginOfCurrentUser.orElseThrow());
+                loginOfCurrentUser);
         userOption = -1;
-        adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+        adminService.addEvent(loginOfCurrentUser,
                 "Trainings history was viewed.");
 
         if (showEditMenu) {
-            console.print("What workout name should I change?");
-            enterTrainingMenu(input.getInt(trainingsListSize));
-            console.editSuccessful();
-            adminService.addEvent(loginOfCurrentUser.orElseThrow(),
-                    "Edit training.");
-            showEditMenu = false;
+            if (trainingsList.isEmpty()) {
+                showEditMenu = false;
+                try {
+                    adminService.addEvent(loginOfCurrentUser,
+                            "Trying edit training.");
+                    throw new EmptyException();
+                } catch (EmptyException e) {
+                    console.print(e.getMessage());
+                }
+            } else {
+                console.print("What workout name should I change?");
+                showTrainingMenu(input.getInt(trainingsListSize));
+                console.editSuccessful();
+                adminService.addEvent(loginOfCurrentUser,
+                        "Edit training.");
+                showEditMenu = false;
+            }
         }
 
         if (showDeleteMenu) {
-            console.print("What training name should I delete?");
-            trainingsService.delete(input.getInt(trainingsListSize), loginOfCurrentUser.orElseThrow());
-            console.deleteSuccessful();
-            adminService.addEvent(loginOfCurrentUser.orElseThrow(),
-                    "Delete training.");
-            showDeleteMenu = false;
+            if (trainingsList.isEmpty()) {
+                showDeleteMenu = false;
+                try {
+                    adminService.addEvent(loginOfCurrentUser,
+                            "Trying delete training.");
+                    throw new EmptyException();
+                } catch (EmptyException e) {
+                    console.print(e.getMessage());
+                }
+            } else {
+                console.print("What training name should I delete?");
+                trainingsService.delete(input.getInt(trainingsListSize), loginOfCurrentUser);
+                console.deleteSuccessful();
+                adminService.addEvent(loginOfCurrentUser,
+                        "Delete training.");
+                showDeleteMenu = false;
+            }
         }
     }
 
-    private void editTraining(int indexForEdit, String login, String typeOfTraining,
+    private void editTraining(int indexForEdit, String login, TypeOfTraining typeOfTraining,
                               LocalDate date, double duration, double caloriesBurned)
             throws EmptyException, TrainingOnDateAlreadyExistsException, TrainingNotFoundException {
         trainingsService.edite(indexForEdit, login, typeOfTraining, date, duration, caloriesBurned);
     }
+
+    private void showStatisticOfTrainingMenu() {
+        while (showStatisticMenu) {
+            console.statisticMenu();
+            userOption = input.getInt(3);
+            switch (userOption) {
+                case 1 -> //if "Show statistic of trainings by duration." was selected
+                        showStatisticOfTraining();
+                case 2 ->  //if "Show statistic of trainings by calories burned." was selected
+                        showStatisticOfTraining();
+                case 3 -> { //if "Back to User menu" was selected
+                    userOption = -1;
+                    showStatisticMenu = false;
+                }
+                case 0 ->  //if "Exit" was selected
+                        System.exit(0);
+            }
+        }
+    }
+
+    private void showStatisticOfTraining() {
+        console.choiceTypeOfTrainingMessage();
+        console.getTypesOfTraining(trainingsService.getAllTypesOfTraining());
+        int maxIndex = trainingsService.getSizeOfListOfTypes();
+        int allType = maxIndex + 1;
+        console.print(allType + ". All types.");
+        int typeIndex = input.getInt(allType);
+        if (typeIndex < maxIndex) {
+            try {
+                TypeOfTraining typeOfTraining = trainingsService.getTypeOfTrainingByIndex(typeIndex);
+                console.print("Statistic for " + typeOfTraining.type() + ":");
+                List<Training> trainings =
+                        trainingsService.getAllTrainingsForUserByTypeOfTraining(
+                                loginOfCurrentUser, typeOfTraining);
+                Statistic statistic = trainingsService.getStatistic(trainings, userOption);
+                console.printStatistic(statistic, userOption);
+                adminService.addEvent(loginOfCurrentUser,
+                        "Viewed training statistics for " + typeOfTraining.type() + ".");
+            } catch (EmptyException e) {
+                console.print(e.getMessage());
+            }
+        } else {
+            console.print("Statistic for all types of training:");
+            List<Training> trainings =
+                    trainingsService.getAllTrainingsForUser(
+                            loginOfCurrentUser);
+            Statistic statistic = trainingsService.getStatistic(trainings, userOption);
+            console.printStatistic(statistic, userOption);
+            adminService.addEvent(loginOfCurrentUser,
+                    "Viewed training statistics for all types of trainings.");
+        }
+    }
+
     private void goToAdminOptions() {
         try {
-            if (userService.isAdmin(loginOfCurrentUser.orElseThrow())) {
+            if (userService.isAdmin(loginOfCurrentUser)) {
                 showAdminMenu = true;
                 userOption = -1;
-                adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+                adminService.addEvent(loginOfCurrentUser,
                         "Enter in admin option.");
             } else {
                 userOption = -1;
-                adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+                adminService.addEvent(loginOfCurrentUser,
                         "Tried to entered in admin option.");
                 throw new NotAdminException();
             }
@@ -276,7 +356,7 @@ public class AppUI {
             console.print(e.getMessage());
         }
     }
-    private void adminMenu() {
+    private void showAdminMenu() {
         while (showAdminMenu) {
             console.adminMenu();
             userOption = input.getInt(5);
@@ -290,13 +370,13 @@ public class AppUI {
                 case 4 -> { //if "Show log" was selected
                     console.printUserEvents(adminService.getAllEvents(),
                             "Log for all users:\n");
-                    adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+                    adminService.addEvent(loginOfCurrentUser,
                             "Log was viewed.");
                 }
                 case 5 -> { //if "Back to User menu" was selected
                     userOption = -1;
                     showAdminMenu = false;
-                    adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+                    adminService.addEvent(loginOfCurrentUser,
                             "Exit from admin options.");
                 }
                 case 0 ->  //if "Exit" was selected
@@ -321,7 +401,7 @@ public class AppUI {
             for (User user : users) {
                 console.printTrainings(trainingsService.getAllTrainingsForUser(user.login()), user.login());
             }
-            adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+            adminService.addEvent(loginOfCurrentUser,
                     "History of trainings for all users was viewed.");
         } catch (EmptyException e) {
             console.print(e.getMessage());
@@ -336,14 +416,14 @@ public class AppUI {
             if (userService.existByLogin(login)) {
                 console.printTrainingsForUser(
                         trainingsService.getAllTrainingsForUser(login), login);
-                adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+                adminService.addEvent(loginOfCurrentUser,
                         "Training history for user was viewed.");
             } else {
                 throw new UserNotFoundException();
             }
         } catch (UserNotFoundException e) {
             console.print(e.getMessage());
-            adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+            adminService.addEvent(loginOfCurrentUser,
                     "Tried to view a training history for user.");
         }
 
@@ -358,14 +438,14 @@ public class AppUI {
             if (userService.existByLogin(login)) {
                 console.printUserEvents(adminService.getAllEventsForUser(login),
                         "Log for " + login + ":\n");
-                adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+                adminService.addEvent(loginOfCurrentUser,
                         "Log for " + login + " was viewed.");
             } else {
                 throw new UserNotFoundException();
             }
         } catch (UserNotFoundException e) {
             console.print(e.getMessage());
-            adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+            adminService.addEvent(loginOfCurrentUser,
                     "Tried to view a log for user.");
         }
 
@@ -375,9 +455,9 @@ public class AppUI {
 
 
     private void logOut() {
-        adminService.addEvent(loginOfCurrentUser.orElseThrow(),
+        adminService.addEvent(loginOfCurrentUser,
                 "Logout.");
-        loginOfCurrentUser = Optional.empty();
+        loginOfCurrentUser = null;
         showAuthorizationMenu = true;
         showUserMenu = false;
         userOption = -1;
