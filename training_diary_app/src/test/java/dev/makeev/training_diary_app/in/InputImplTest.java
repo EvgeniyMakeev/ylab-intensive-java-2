@@ -1,5 +1,6 @@
 package dev.makeev.training_diary_app.in;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -17,16 +18,14 @@ public class InputImplTest {
      * with valid input, should return the expected integer.
      */
     @Test
+    @DisplayName("Get int from console - Should get integer not higher max value")
     void getInt_validInput_returnsInteger() {
-        // Arrange
         String inputString = "5\n";
         InputStream in = new ByteArrayInputStream(inputString.getBytes());
         System.setIn(in);
         InputImpl input = new InputImpl();
-        // Act
         int result = input.getInt(9);
 
-        // Assert
         assertThat(result).isEqualTo(5);
     }
 
@@ -35,17 +34,15 @@ public class InputImplTest {
      * with valid input, should return the expected string.
      */
     @Test
+    @DisplayName("Get string from console - Should get string")
     void getString_validInput_returnsString() {
-        // Arrange
         String inputString = "Hello\n";
         InputStream in = new ByteArrayInputStream(inputString.getBytes());
         System.setIn(in);
         InputImpl input = new InputImpl();
 
-        // Act
         String result = input.getString();
 
-        // Assert
         assertThat(result).isEqualTo("Hello");
     }
 
@@ -54,17 +51,15 @@ public class InputImplTest {
      * with valid input, should return the expected double.
      */
     @Test
+    @DisplayName("Get double from console - Should get double")
     void getDouble_validInput_returnsDouble() {
-        // Arrange
         String inputString = "3.14\n";
         InputStream in = new ByteArrayInputStream(inputString.getBytes());
         System.setIn(in);
         InputImpl input = new InputImpl();
 
-        // Act
         double result = input.getDouble();
 
-        // Assert
         assertThat(result).isEqualTo(3.14);
     }
 
@@ -73,17 +68,16 @@ public class InputImplTest {
      * with valid input, should return the expected integer.
      */
     @Test
+    @DisplayName("Get a integer with a given minimum, maximum value and a certain number of characters" +
+            " - Should get integer")
     void getInteger_validInput_returnsInteger() {
-        // Arrange
         String inputString = "12345\n";
         InputStream in = new ByteArrayInputStream(inputString.getBytes());
         System.setIn(in);
         InputImpl input = new InputImpl();
 
-        // Act
         int result = input.getInteger(5, 1000, 99999);
 
-        // Assert
         assertThat(result).isEqualTo(12345);
     }
 }

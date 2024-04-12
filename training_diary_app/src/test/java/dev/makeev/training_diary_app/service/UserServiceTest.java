@@ -67,19 +67,17 @@ class UserServiceTest {
     @Test
     @DisplayName("Get by login- Should throw UserNotFoundException if user does not exist")
     void getByLogin_shouldThrowUserNotFoundExceptionIfUserDoesNotExist() {
-        String login = "nonExistingUser";
-        when(userDAO.getBy(login)).thenReturn(Optional.empty());
+        when(userDAO.getBy(LOGIN)).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userService.isAdmin(login));
+        assertThrows(UserNotFoundException.class, () -> userService.isAdmin(LOGIN));
     }
 
     @Test
     @DisplayName("Is Admin - Should return true if user is admin")
     void isAdmin_shouldReturnTrueIfUserIsAdmin() throws UserNotFoundException {
-        String login = "adminUser";
-        when(userDAO.getBy(login)).thenReturn(Optional.of(new User(login, "password", true)));
+        when(userDAO.getBy(LOGIN)).thenReturn(Optional.of(new User(LOGIN, PASSWORD, true)));
 
-        boolean result = userService.isAdmin(login);
+        boolean result = userService.isAdmin(LOGIN);
 
         assertTrue(result);
     }
@@ -87,15 +85,12 @@ class UserServiceTest {
     @Test
     @DisplayName("Is Admin - Should return false if user is not admin")
     void isAdmin_shouldReturnFalseIfUserIsNotAdmin() throws UserNotFoundException {
-        String login = "nonAdminUser";
-        when(userDAO.getBy(login)).thenReturn(Optional.of(new User(login, "password", false)));
+        when(userDAO.getBy(LOGIN)).thenReturn(Optional.of(new User(LOGIN, PASSWORD, false)));
 
-        boolean result = userService.isAdmin(login);
+        boolean result = userService.isAdmin(LOGIN);
 
         assertFalse(result);
     }
-
-
 
     @Test
     @DisplayName("Get All Users - Should get all users from DAO")

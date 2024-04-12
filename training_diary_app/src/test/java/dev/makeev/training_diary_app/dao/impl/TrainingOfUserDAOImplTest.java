@@ -82,4 +82,28 @@ class TrainingOfUserDAOImplTest {
 
         Mockito.verify(trainingOfUserRepository, Mockito.times(1)).delete(Mockito.eq(0), Mockito.eq(LOGIN));
     }
+
+    @Test
+    @DisplayName("Edit Training - Should edit existing training")
+    void edit_shouldEditExistingTraining() {
+        String login = "testUser";
+        TypeOfTraining oldType = new TypeOfTraining("OldType");
+        TypeOfTraining newType = new TypeOfTraining("NewType");
+        LocalDate oldDate = LocalDate.of(2022, 1, 1);
+        LocalDate newDate = LocalDate.of(2022, 1, 2);
+        double oldDuration = 30.0;
+        double newDuration = 45.0;
+        double oldCaloriesBurned = 200.0;
+        double newCaloriesBurned = 250.0;
+
+        Training oldTraining = new Training(oldType, oldDate, oldDuration, oldCaloriesBurned);
+        Training editedTraining = new Training(newType, newDate, newDuration, newCaloriesBurned);
+
+        Mockito.when(trainingOfUserRepository.getAll()).thenReturn(Map.of(login, List.of(oldTraining)));
+
+        trainingDAO.edit(0, login, newType, newDate, newDuration, newCaloriesBurned);
+
+        Mockito.verify(trainingOfUserRepository, Mockito.times(1)).edit(0, login, editedTraining);
+    }
+
 }
