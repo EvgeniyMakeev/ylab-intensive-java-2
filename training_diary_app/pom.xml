@@ -6,7 +6,7 @@
 
     <groupId>dev.makeev</groupId>
     <artifactId>training_diary_app</artifactId>
-    <version>1.3</version>
+    <version>1.5</version>
 
     <name>Training diary app</name>
     <url>https://github.com/EvgeniyMakeev/ylab-intensive-java-2/tree/main/training_diary_app</url>

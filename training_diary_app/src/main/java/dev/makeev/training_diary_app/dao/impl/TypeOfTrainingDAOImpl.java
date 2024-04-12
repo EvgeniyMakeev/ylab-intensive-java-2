@@ -11,10 +11,13 @@ import java.util.Optional;
 public class TypeOfTrainingDAOImpl implements TypeOfTrainingDAO {
 
     private final TypeOfTrainingRepository repository;
+    private int sizeOfList;
 
     public TypeOfTrainingDAOImpl(TypeOfTrainingRepository repository) {
         this.repository = repository;
+        this.sizeOfList = repository.getAll().size();
     }
+
 
     @Override
     public TypeOfTraining getBy(String type) throws EmptyException {
@@ -34,11 +37,11 @@ public class TypeOfTrainingDAOImpl implements TypeOfTrainingDAO {
     @Override
     public void add(String type) {
         repository.add(new TypeOfTraining(type));
+        sizeOfList = getAll().size();
     }
 
     @Override
     public Optional<TypeOfTraining> getByIndex(int index) throws EmptyException {
-        int sizeOfList = repository.getAll().size();
         index -= 1;
         if (index < sizeOfList) {
             return Optional.ofNullable(repository.getAll().get(index));

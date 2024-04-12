@@ -22,32 +22,6 @@ public class TrainingsService {
     public TrainingsService(TrainingOfUserDAO trainingOfUserDAO, TypeOfTrainingDAO typeOfTrainingDAO) {
         this.trainingOfUserDAO = trainingOfUserDAO;
         this.typeOfTrainingDAO = typeOfTrainingDAO;
-
-        try {
-            addTrainingOfUser("DemoUser", typeOfTrainingDAO.getAll().get(0).type(),
-                    LocalDate.of(2024,2,2), 175.0, 153.5);
-            addTrainingOfUser("DemoUser", typeOfTrainingDAO.getAll().get(0).type(),
-                    LocalDate.of(2024,1,2), 215.0, 60.5);
-            addTrainingOfUser("DemoUser", typeOfTrainingDAO.getAll().get(0).type(),
-                    LocalDate.of(2024,5,2), 105.0, 600.5);
-            addTrainingOfUser("DemoUser", typeOfTrainingDAO.getAll().get(0).type(),
-                    LocalDate.of(2024,8,2), 155.0, 550.5);
-            addTrainingOfUser("DemoUser", typeOfTrainingDAO.getAll().get(0).type(),
-                    LocalDate.of(2024,7,2), 20.0, 70.5);
-
-            addTrainingOfUser("DemoUser", typeOfTrainingDAO.getAll().get(2).type(),
-                    LocalDate.of(2024,10,2), 115.0, 1070.5);
-            addTrainingOfUser("DemoUser", typeOfTrainingDAO.getAll().get(2).type(),
-                    LocalDate.of(2024,11,2), 60.0, 365.5);
-            addTrainingOfUser("DemoUser", typeOfTrainingDAO.getAll().get(2).type(),
-                    LocalDate.of(2024,4,2), 175.1, 650.5);
-            addTrainingOfUser("DemoUser", typeOfTrainingDAO.getAll().get(2).type(),
-                    LocalDate.of(2024,3,2), 900.0, 50.5);
-            addTrainingOfUser("DemoUser", typeOfTrainingDAO.getAll().get(2).type(),
-                    LocalDate.of(2024,9,2), 22.0, 75.5);
-        } catch (EmptyException | TrainingOnDateAlreadyExistsException | UserNotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 

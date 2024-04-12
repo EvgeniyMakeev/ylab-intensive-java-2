@@ -4,7 +4,13 @@ import dev.makeev.training_diary_app.dao.impl.TrainingOfUserDAOImpl;
 import dev.makeev.training_diary_app.dao.impl.TypeOfTrainingDAOImpl;
 import dev.makeev.training_diary_app.dao.impl.UserDAOImpl;
 import dev.makeev.training_diary_app.dao.impl.UserLogEventDAOImpl;
-import dev.makeev.training_diary_app.exceptions.*;
+import dev.makeev.training_diary_app.exceptions.EmptyException;
+import dev.makeev.training_diary_app.exceptions.LoginAlreadyExistsException;
+import dev.makeev.training_diary_app.exceptions.NotAdminException;
+import dev.makeev.training_diary_app.exceptions.TrainingNotFoundException;
+import dev.makeev.training_diary_app.exceptions.TrainingOnDateAlreadyExistsException;
+import dev.makeev.training_diary_app.exceptions.UserNotFoundException;
+import dev.makeev.training_diary_app.exceptions.VerificationException;
 import dev.makeev.training_diary_app.in.Input;
 import dev.makeev.training_diary_app.in.InputImpl;
 import dev.makeev.training_diary_app.model.Statistic;
@@ -33,15 +39,10 @@ public class AppUI {
                     new TypeOfTrainingDAOImpl(new TypeOfTrainingRepositoryImpl()));
 
     private final Input input = new InputImpl();
-
     private final Messages console = new Messages(new OutputImpl());
-
     private String loginOfCurrentUser = null;
-
     private int userOption = -1;
-
     private boolean appAreWorking = true;
-
     private boolean showAuthorizationMenu = true;
     private boolean showAdminMenu = false;
     private boolean showUserMenu = false;
@@ -52,6 +53,32 @@ public class AppUI {
     private boolean showEditMenu = false;
     private boolean showDeleteMenu = false;
     private boolean showStatisticMenu = false;
+
+    {
+        try {
+            trainingsService.addTrainingOfUser("DemoUser", trainingsService.getTypeOfTrainingByIndex(1),
+                    LocalDate.of(2024, 2, 2), 175.0, 153.5);
+            trainingsService.addTrainingOfUser("DemoUser", trainingsService.getTypeOfTrainingByIndex(1),
+                    LocalDate.of(2024, 1, 2), 215.0, 60.5);
+            trainingsService.addTrainingOfUser("DemoUser", trainingsService.getTypeOfTrainingByIndex(1),
+                    LocalDate.of(2024, 5, 2), 105.0, 600.5);
+            trainingsService.addTrainingOfUser("DemoUser", trainingsService.getTypeOfTrainingByIndex(1),
+                    LocalDate.of(2024, 8, 2), 155.0, 550.5);
+            trainingsService.addTrainingOfUser("DemoUser", trainingsService.getTypeOfTrainingByIndex(1),
+                    LocalDate.of(2024, 7, 2), 20.0, 70.5);
+
+            trainingsService.addTrainingOfUser("DemoUser", trainingsService.getTypeOfTrainingByIndex(2),
+                    LocalDate.of(2024, 10, 2), 115.0, 1070.5);
+            trainingsService.addTrainingOfUser("DemoUser", trainingsService.getTypeOfTrainingByIndex(2),
+                    LocalDate.of(2024, 11, 2), 60.0, 365.5);
+            trainingsService.addTrainingOfUser("DemoUser", trainingsService.getTypeOfTrainingByIndex(2),
+                    LocalDate.of(2024, 4, 2), 175.1, 650.5);
+            trainingsService.addTrainingOfUser("DemoUser", trainingsService.getTypeOfTrainingByIndex(2),
+                    LocalDate.of(2024, 9, 2), 22.0, 75.5);
+        } catch (EmptyException | TrainingOnDateAlreadyExistsException | UserNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     public void start() {
