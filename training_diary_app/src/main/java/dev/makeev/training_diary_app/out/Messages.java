@@ -142,8 +142,16 @@ public class Messages {
                         .append(training.duration())
                         .append(" | ")
                         .append("Calories are Burned: ")
-                        .append(training.caloriesBurned())
-                        .append("\n");
+                        .append(training.caloriesBurned());
+                if (!training.additionalInfo().isEmpty()) {
+                    training.additionalInfo().forEach((key, value) -> {
+                        result.append(" | ")
+                                .append(key)
+                                .append(": ")
+                                .append(value);
+                    });
+                }
+                result.append("\n");
         }
         console.output(result.toString());
     }
@@ -166,8 +174,16 @@ public class Messages {
                     .append(training.duration())
                     .append(" | ")
                     .append("Calories are Burned: ")
-                    .append(training.caloriesBurned())
-                    .append("\n");
+                    .append(training.caloriesBurned());
+            if (!training.additionalInfo().isEmpty()) {
+                training.additionalInfo().forEach((key, value) -> {
+                    result.append(" | ")
+                            .append(key)
+                            .append(": ")
+                            .append(value);
+                });
+            }
+            result.append("\n");
         }
         console.output(result.toString());
     }
@@ -238,5 +254,13 @@ public class Messages {
             resultForPrint.append("\n");
         }
         console.output(resultForPrint.toString());
+    }
+
+    public void printEditeMenu() {
+        console.output("================ EDIT MENU ================\n" +
+                "1. Edite base info of training.\n" +
+                "2. Edite additional info of training.\n" +
+                "3. Back to User menu.\n\n" +
+                "0. Exit");
     }
 }

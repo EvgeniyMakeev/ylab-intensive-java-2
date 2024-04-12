@@ -170,7 +170,7 @@ public class AppUI {
     }
 
     private void showTrainingMenu(int indexForEdit) {
-        TypeOfTraining typeOfTraining = null;
+        String typeOfTraining = null;
         console.choiceTypeOfTrainingMessage();
         console.getTypesOfTraining(trainingsService.getAllTypesOfTraining());
         console.choiceTypeMessage();
@@ -178,8 +178,9 @@ public class AppUI {
 
         switch (userOption) {
             case 1 -> {
-                console.getTypesOfTraining(trainingsService.getAllTypesOfTraining());
-                int index = input.getInt(trainingsService.getSizeOfListOfTypes());
+                List<TypeOfTraining> listOfTypes = trainingsService.getAllTypesOfTraining();
+                console.getTypesOfTraining(listOfTypes);
+                int index = input.getInt(listOfTypes.size());
                 try {
                     typeOfTraining = trainingsService
                             .getTypeOfTrainingByIndex(index);
@@ -189,7 +190,8 @@ public class AppUI {
             }
             case 2 -> {
                 console.addTypeOfTrainingMessage();
-                trainingsService.addTypeOfTraining(input.getString());
+                typeOfTraining = input.getString();
+                trainingsService.addTypeOfTraining(typeOfTraining);
                 console.print("A new type of training was added.");
                 adminService.addEvent(loginOfCurrentUser,
                         "Add a new type of training.");
@@ -249,8 +251,32 @@ public class AppUI {
                     console.print(e.getMessage());
                 }
             } else {
-                console.print("What workout name should I change?");
-                showTrainingMenu(input.getInt(trainingsListSize));
+                console.printEditeMenu();
+                userOption = input.getInt(3);
+                switch (userOption) {
+                    case 1 -> { //if "Edite base info of training." was selected
+                        console.print("What training you want edite?");
+                        int choice = input.getInt(trainingsListSize);
+                        showTrainingMenu(choice);
+                        }
+                    case 2 -> { //if "Edite additional info of training." was selected
+                        console.print("What training you want edite?");
+                        int choice = input.getInt(trainingsListSize);
+                        Training trainingForEdit = trainingsList.get(choice);
+                        console.print("Enter info: ");
+                        String info = input.getString();
+                        console.print("Enter value: ");
+                        Double value = input.getDouble();
+                        trainingsService.editAdditionalInfo(trainingForEdit, info, value);
+                        }
+                    case 3 -> { //if "Back to User menu" was selected
+                        userOption = -1;
+                        showStatisticMenu = false;
+                    }
+                    case 0 ->  //if "Exit" was selected
+                            System.exit(0);
+                }
+
                 console.editSuccessful();
                 adminService.addEvent(loginOfCurrentUser,
                         "Edit training.");
@@ -270,7 +296,8 @@ public class AppUI {
                 }
             } else {
                 console.print("What training name should I delete?");
-                trainingsService.delete(input.getInt(trainingsListSize), loginOfCurrentUser);
+                int indexForDelete = input.getInt(trainingsListSize);
+                trainingsService.delete(indexForDelete, loginOfCurrentUser);
                 console.deleteSuccessful();
                 adminService.addEvent(loginOfCurrentUser,
                         "Delete training.");
@@ -279,7 +306,7 @@ public class AppUI {
         }
     }
 
-    private void editTraining(int indexForEdit, String login, TypeOfTraining typeOfTraining,
+    private void editTraining(int indexForEdit, String login, String typeOfTraining,
                               LocalDate date, double duration, double caloriesBurned)
             throws EmptyException, TrainingOnDateAlreadyExistsException, TrainingNotFoundException {
         trainingsService.edite(indexForEdit, login, typeOfTraining, date, duration, caloriesBurned);
@@ -306,22 +333,23 @@ public class AppUI {
 
     private void showStatisticOfTraining() {
         console.choiceTypeOfTrainingMessage();
-        console.getTypesOfTraining(trainingsService.getAllTypesOfTraining());
-        int maxIndex = trainingsService.getSizeOfListOfTypes();
+        List<TypeOfTraining> listOfTypes = trainingsService.getAllTypesOfTraining();
+        console.getTypesOfTraining(listOfTypes);
+        int maxIndex = listOfTypes.size();
         int allType = maxIndex + 1;
         console.print(allType + ". All types.");
         int typeIndex = input.getInt(allType);
-        if (typeIndex < maxIndex) {
+        if (typeIndex <= maxIndex) {
             try {
-                TypeOfTraining typeOfTraining = trainingsService.getTypeOfTrainingByIndex(typeIndex);
-                console.print("Statistic for " + typeOfTraining.type() + ":");
+                String typeOfTraining = trainingsService.getTypeOfTrainingByIndex(typeIndex);
+                console.print("Statistic for " + typeOfTraining + ":");
                 List<Training> trainings =
                         trainingsService.getAllTrainingsForUserByTypeOfTraining(
                                 loginOfCurrentUser, typeOfTraining);
                 Statistic statistic = trainingsService.getStatistic(trainings, userOption);
                 console.printStatistic(statistic, userOption);
                 adminService.addEvent(loginOfCurrentUser,
-                        "Viewed training statistics for " + typeOfTraining.type() + ".");
+                        "Viewed training statistics for " + typeOfTraining + ".");
             } catch (EmptyException e) {
                 console.print(e.getMessage());
             }

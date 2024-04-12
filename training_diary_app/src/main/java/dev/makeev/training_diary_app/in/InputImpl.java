@@ -28,15 +28,18 @@ public class InputImpl implements Input {
         //option that will convert for the system
         int option = -1;
 
+        boolean isValid;
         do {
             optionString = input.nextLine();
 
-            if (optionString.matches("[0-" + max + "]+") && optionString.length() <= 1) {
+            isValid = optionString.matches("[0-" + max + "]+");
+
+            if (isValid) {
                 option = Integer.parseInt(optionString);
             } else {
                 System.out.println("Enter only digits 0 - " + max);
             }
-        } while (!optionString.matches("[0-" + max + "]+") || optionString.length() > 1);
+        } while (!isValid || optionString.isEmpty());
         return option;
     }
 
@@ -47,7 +50,7 @@ public class InputImpl implements Input {
      */
     @Override
     public String getString() {
-        return input.next();
+        return input.nextLine();
     }
 
     /**
@@ -62,11 +65,13 @@ public class InputImpl implements Input {
         boolean scan = true;
         while (scan) {
             str = input.nextLine();
-            result = Double.parseDouble(str);
-                if (result >= 0) {
-                    scan = false;
-                }
+            if (str != null && !str.isEmpty()) {
+                result = Double.parseDouble(str);
             }
+            if (result >= 0) {
+                    scan = false;
+            }
+        }
         return result;
     }
 
@@ -85,7 +90,7 @@ public class InputImpl implements Input {
         boolean scan = true;
             while (scan) {
                 str = input.nextLine();
-                if (str.length() == maxLength) {
+                if (str.length() <= maxLength) {
                     result = Integer.parseInt(str);
                     if (result >= min && result <= max) {
                         scan = false;

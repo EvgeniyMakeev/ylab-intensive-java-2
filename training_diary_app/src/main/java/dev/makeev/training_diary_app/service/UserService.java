@@ -16,6 +16,10 @@ public class UserService {
      */
     private final UserDAO userDAO = new UserDAO();
 
+    {
+       userDAO.add("DemoUser", "1234");
+    }
+
     /**
      * Adds a new user with the specified login and password.
      *

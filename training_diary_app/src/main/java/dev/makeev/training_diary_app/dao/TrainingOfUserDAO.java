@@ -34,8 +34,9 @@ public class TrainingOfUserDAO {
 
     public void edit(int index, String login, TypeOfTraining type, LocalDate localDate,
                      double duration, double caloriesBurned) {
-        Training training = new Training(type, localDate, duration, caloriesBurned);
-        repository.edit(index, login, training);
+        Training oldTraining = repository.getAll().get(login).get(index);
+        Training editedTraining = new Training(type, localDate, duration, caloriesBurned, oldTraining.additionalInfo());
+        repository.edit(index, login, editedTraining);
     }
 
     public void delete(int index, String login) {

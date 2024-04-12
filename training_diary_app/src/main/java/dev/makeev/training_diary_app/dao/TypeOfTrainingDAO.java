@@ -10,7 +10,6 @@ import java.util.Optional;
 public class TypeOfTrainingDAO {
 
     private final TypeOfTrainingRepository repository = new TypeOfTrainingRepository();
-    private int sizeOfList = repository.getAll().size();
 
     public TypeOfTraining getBy(String type) throws EmptyException {
         Optional<TypeOfTraining> typeOfTraining = repository.getBy(type);
@@ -30,15 +29,12 @@ public class TypeOfTrainingDAO {
     }
 
     public Optional<TypeOfTraining> getByIndex(int index) throws EmptyException {
+        int sizeOfList = repository.getAll().size();
         index -= 1;
         if (index < sizeOfList) {
             return Optional.ofNullable(repository.getAll().get(index));
         } else {
             throw new EmptyException();
         }
-    }
-
-    public int getSizeOfList() {
-        return sizeOfList;
     }
 }
