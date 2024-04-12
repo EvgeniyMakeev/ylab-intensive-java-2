@@ -2,8 +2,6 @@ package dev.makeev.training_diary_app.in;
 
 /**
  * An interface defining methods for user input in a console application.
- * @author Evgeniy Makeev
- * @version 1.4
  * */
 public interface Input {
 
