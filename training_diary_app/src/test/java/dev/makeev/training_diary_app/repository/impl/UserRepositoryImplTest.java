@@ -1,4 +1,4 @@
-package dev.makeev.training_diary_app.repository;
+package dev.makeev.training_diary_app.repository.impl;
 
 import dev.makeev.training_diary_app.model.User;
 import org.assertj.core.api.Assertions;
@@ -17,16 +17,16 @@ import static org.mockito.Mockito.when;
 
 @DisplayName("UserRepository Test")
 @ExtendWith(MockitoExtension.class)
-class UserRepositoryTest {
+class UserRepositoryImplTest {
 
     private final static String TEST_LOGIN = "TestLogin";
     private final static String WRONG_TEST_LOGIN = "WrongTestLogin";
 
-    private UserRepository userRepository;
+    private UserRepositoryImpl userRepositoryImpl;
 
     @BeforeEach
     void setUp() {
-        userRepository = new UserRepository();
+        userRepositoryImpl = new UserRepositoryImpl();
     }
 
     @Test
@@ -35,9 +35,9 @@ class UserRepositoryTest {
         final User testUser = mock(User.class);
         when(testUser.login()).thenReturn(TEST_LOGIN);
 
-        List<User> users = userRepository.getAll();
+        List<User> users = userRepositoryImpl.getAll();
         int sizeBeforeAdd = users.size();
-        userRepository.add(testUser);
+        userRepositoryImpl.add(testUser);
         int sizeAfterAdd = users.size();
 
         assertNotNull(users);
@@ -53,14 +53,14 @@ class UserRepositoryTest {
         final User testUser = mock(User.class);
         when(testUser.login()).thenReturn(TEST_LOGIN);
 
-        userRepository.add(testUser);
-        final User actual = userRepository.getBy(TEST_LOGIN);
+        userRepositoryImpl.add(testUser);
+        final User actual = userRepositoryImpl.getBy(TEST_LOGIN);
 
         assertNotNull(actual);
         assertThat(actual).isEqualTo(testUser);
-        assertThat(userRepository.getBy(TEST_LOGIN).login()).isEqualTo(TEST_LOGIN);
-        assertThat(userRepository.getBy(WRONG_TEST_LOGIN)).isNull();
-        assertThat(userRepository.getBy(TEST_LOGIN).login()).isNotEqualTo(WRONG_TEST_LOGIN);
+        assertThat(userRepositoryImpl.getBy(TEST_LOGIN).login()).isEqualTo(TEST_LOGIN);
+        assertThat(userRepositoryImpl.getBy(WRONG_TEST_LOGIN)).isNull();
+        assertThat(userRepositoryImpl.getBy(TEST_LOGIN).login()).isNotEqualTo(WRONG_TEST_LOGIN);
     }
 
     @Test
@@ -69,9 +69,9 @@ class UserRepositoryTest {
         final User testUser = mock(User.class);
         when(testUser.login()).thenReturn(TEST_LOGIN);
 
-        List<User> users = userRepository.getAll();
+        List<User> users = userRepositoryImpl.getAll();
         int sizeBeforeAdd = users.size();
-        userRepository.add(testUser);
+        userRepositoryImpl.add(testUser);
         int sizeAfterAdd = users.size();
 
         assertNotNull(users);

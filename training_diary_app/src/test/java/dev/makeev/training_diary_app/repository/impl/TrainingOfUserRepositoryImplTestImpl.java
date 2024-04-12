@@ -1,4 +1,4 @@
-package dev.makeev.training_diary_app.repository;
+package dev.makeev.training_diary_app.repository.impl;
 
 import dev.makeev.training_diary_app.model.Training;
 import org.assertj.core.api.Assertions;
@@ -20,17 +20,17 @@ import static org.mockito.Mockito.when;
 
 @DisplayName("TrainingOfUserRepository Test")
 @ExtendWith(MockitoExtension.class)
-class TrainingOfUserRepositoryTest {
+class TrainingOfUserRepositoryImplTest {
 
     private static final String LOGIN = "TestLogin";
     private final static String WRONG_TEST_LOGIN = "WrongTestLogin";
 
 
-    private TrainingOfUserRepository trainingRepository;
+    private TrainingOfUserRepositoryImpl trainingRepository;
 
     @BeforeEach
     void setUp() {
-        trainingRepository = new TrainingOfUserRepository();
+        trainingRepository = new TrainingOfUserRepositoryImpl();
     }
 
     @Test

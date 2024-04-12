@@ -9,7 +9,11 @@ import dev.makeev.training_diary_app.model.UserLogEvent;
 import java.util.List;
 
 public class Messages {
-    private final Output<String> console = new OutputImpl();
+    private final Output<String> console;
+
+    public Messages(Output<String> console) {
+        this.console = console;
+    }
 
     /**
      * Displays a welcome message to the user.

@@ -2,39 +2,16 @@ package dev.makeev.training_diary_app.dao;
 
 import dev.makeev.training_diary_app.exceptions.EmptyException;
 import dev.makeev.training_diary_app.model.TypeOfTraining;
-import dev.makeev.training_diary_app.repository.TypeOfTrainingRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public class TypeOfTrainingDAO {
+public interface TypeOfTrainingDAO {
+    TypeOfTraining getBy(String type) throws EmptyException;
 
-    private final TypeOfTrainingRepository repository = new TypeOfTrainingRepository();
+    List<TypeOfTraining> getAll();
 
-    public TypeOfTraining getBy(String type) throws EmptyException {
-        Optional<TypeOfTraining> typeOfTraining = repository.getBy(type);
-        if (typeOfTraining.isPresent()) {
-            return typeOfTraining.get();
-        } else {
-            throw new EmptyException();
-        }
-    }
+    void add(String type);
 
-    public List<TypeOfTraining> getAll() {
-        return repository.getAll();
-    }
-
-    public void add(String type) {
-        repository.add(new TypeOfTraining(type));
-    }
-
-    public Optional<TypeOfTraining> getByIndex(int index) throws EmptyException {
-        int sizeOfList = repository.getAll().size();
-        index -= 1;
-        if (index < sizeOfList) {
-            return Optional.ofNullable(repository.getAll().get(index));
-        } else {
-            throw new EmptyException();
-        }
-    }
+    Optional<TypeOfTraining> getByIndex(int index) throws EmptyException;
 }

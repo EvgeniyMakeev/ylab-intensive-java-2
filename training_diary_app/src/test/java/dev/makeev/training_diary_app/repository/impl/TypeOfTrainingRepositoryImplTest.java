@@ -1,4 +1,4 @@
-package dev.makeev.training_diary_app.repository;
+package dev.makeev.training_diary_app.repository.impl;
 
 import dev.makeev.training_diary_app.model.TypeOfTraining;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,13 +18,13 @@ import static org.mockito.Mockito.when;
 
 @DisplayName("TypeOfTrainingRepository Test")
 @ExtendWith(MockitoExtension.class)
-class TypeOfTrainingRepositoryTest {
+class TypeOfTrainingRepositoryImplTest {
 
-    private TypeOfTrainingRepository typeOfTrainingRepository;
+    private TypeOfTrainingRepositoryImpl typeOfTrainingRepositoryImpl;
 
     @BeforeEach
     void setUp() {
-        typeOfTrainingRepository = new TypeOfTrainingRepository();
+        typeOfTrainingRepositoryImpl = new TypeOfTrainingRepositoryImpl();
     }
 
     @Test
@@ -32,9 +32,9 @@ class TypeOfTrainingRepositoryTest {
     void addTypeOfTraining_shouldSaveTypeOfTraining() {
         final TypeOfTraining testTypeOfTraining = mock(TypeOfTraining.class);
 
-        List<TypeOfTraining> typesOfTraining = typeOfTrainingRepository.getAll();
+        List<TypeOfTraining> typesOfTraining = typeOfTrainingRepositoryImpl.getAll();
         int sizeBeforeAdd = typesOfTraining.size();
-        typeOfTrainingRepository.add(testTypeOfTraining);
+        typeOfTrainingRepositoryImpl.add(testTypeOfTraining);
 
         assertThat(typesOfTraining).hasSize(sizeBeforeAdd + 1);
         assertThat(typesOfTraining.contains(testTypeOfTraining)).isTrue();
@@ -46,7 +46,7 @@ class TypeOfTrainingRepositoryTest {
         final TypeOfTraining testTypeOfTraining = mock(TypeOfTraining.class);
         when(testTypeOfTraining.type()).thenReturn("Cardio training");
 
-        Optional<TypeOfTraining> typeOfTraining = typeOfTrainingRepository.getBy("Cardio training");
+        Optional<TypeOfTraining> typeOfTraining = typeOfTrainingRepositoryImpl.getBy("Cardio training");
 
         assertTrue(typeOfTraining.isPresent());
         assertThat(typeOfTraining.get().type()).isEqualToIgnoringCase(testTypeOfTraining.type());
@@ -55,7 +55,7 @@ class TypeOfTrainingRepositoryTest {
     @Test
     @DisplayName("Get By TypeOfTraining - Should not find TypeOfTraining by wrong name")
     void getByTypeOfTraining_shouldNotFindTypeOfTrainingByWrongName() {
-        Optional<TypeOfTraining> typeOfTraining = typeOfTrainingRepository.getBy("Wrong Type");
+        Optional<TypeOfTraining> typeOfTraining = typeOfTrainingRepositoryImpl.getBy("Wrong Type");
 
         assertFalse(typeOfTraining.isPresent());
     }
@@ -63,7 +63,7 @@ class TypeOfTrainingRepositoryTest {
     @Test
     @DisplayName("Get All TypesOfTraining - Should get all TypesOfTraining")
     void getAllTypesOfTraining_shouldGetAllTypesOfTraining() {
-        List<TypeOfTraining> typesOfTraining = typeOfTrainingRepository.getAll();
+        List<TypeOfTraining> typesOfTraining = typeOfTrainingRepositoryImpl.getAll();
 
         assertThat(typesOfTraining).hasSize(3);
         assertThat(typesOfTraining.get(0).type()).isEqualToIgnoringCase("Cardio training");

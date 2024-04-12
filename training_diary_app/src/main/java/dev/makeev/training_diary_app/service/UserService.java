@@ -14,10 +14,10 @@ public class UserService {
     /**
      * The UserDAO instance for managing user data.
      */
-    private final UserDAO userDAO = new UserDAO();
+    private final UserDAO userDAO;
 
-    {
-       userDAO.add("DemoUser", "1234");
+    public UserService(UserDAO userDAO) {
+        this.userDAO = userDAO;
     }
 
     /**

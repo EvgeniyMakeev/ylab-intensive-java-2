@@ -11,7 +11,12 @@ import java.util.List;
  */
 public class AdminService {
 
-    private final UserLogEventDAO userLogEventDAO = new UserLogEventDAO();
+    private final UserLogEventDAO userLogEventDAO;
+
+    public AdminService(UserLogEventDAO userLogEventDAO) {
+        this.userLogEventDAO = userLogEventDAO;
+    }
+
     /**
      * Adds an event for a specific user with a corresponding message.
      *

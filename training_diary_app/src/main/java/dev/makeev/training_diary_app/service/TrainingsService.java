@@ -15,11 +15,14 @@ import java.util.List;
 
 public class TrainingsService {
 
-    private final TrainingOfUserDAO trainingOfUserDAO = new TrainingOfUserDAO();
+    private final TrainingOfUserDAO trainingOfUserDAO;
 
-    private final TypeOfTrainingDAO typeOfTrainingDAO = new TypeOfTrainingDAO();
+    private final TypeOfTrainingDAO typeOfTrainingDAO;
 
-    {
+    public TrainingsService(TrainingOfUserDAO trainingOfUserDAO, TypeOfTrainingDAO typeOfTrainingDAO) {
+        this.trainingOfUserDAO = trainingOfUserDAO;
+        this.typeOfTrainingDAO = typeOfTrainingDAO;
+
         try {
             addTrainingOfUser("DemoUser", typeOfTrainingDAO.getAll().get(0).type(),
                     LocalDate.of(2024,2,2), 175.0, 153.5);
@@ -46,6 +49,7 @@ public class TrainingsService {
             throw new RuntimeException(e);
         }
     }
+
 
     public List<TypeOfTraining> getAllTypesOfTraining() {
         return typeOfTrainingDAO.getAll();

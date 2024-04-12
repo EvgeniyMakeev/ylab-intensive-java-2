@@ -1,5 +1,9 @@
 package dev.makeev.training_diary_app.service;
 
+import dev.makeev.training_diary_app.dao.impl.TrainingOfUserDAOImpl;
+import dev.makeev.training_diary_app.dao.impl.TypeOfTrainingDAOImpl;
+import dev.makeev.training_diary_app.dao.impl.UserDAOImpl;
+import dev.makeev.training_diary_app.dao.impl.UserLogEventDAOImpl;
 import dev.makeev.training_diary_app.exceptions.*;
 import dev.makeev.training_diary_app.in.Input;
 import dev.makeev.training_diary_app.in.InputImpl;
@@ -8,6 +12,11 @@ import dev.makeev.training_diary_app.model.Training;
 import dev.makeev.training_diary_app.model.TypeOfTraining;
 import dev.makeev.training_diary_app.model.User;
 import dev.makeev.training_diary_app.out.Messages;
+import dev.makeev.training_diary_app.out.OutputImpl;
+import dev.makeev.training_diary_app.repository.impl.LogsRepositoryImpl;
+import dev.makeev.training_diary_app.repository.impl.TrainingOfUserRepositoryImpl;
+import dev.makeev.training_diary_app.repository.impl.TypeOfTrainingRepositoryImpl;
+import dev.makeev.training_diary_app.repository.impl.UserRepositoryImpl;
 
 
 import java.time.LocalDate;
@@ -15,15 +24,17 @@ import java.time.YearMonth;
 import java.util.List;
 
 public class AppUI {
-    private final UserService userService = new UserService();
+    private final UserService userService = new UserService(new UserDAOImpl(new UserRepositoryImpl()));
 
-    private final AdminService adminService = new AdminService();
+    private final AdminService adminService = new AdminService(new UserLogEventDAOImpl(new LogsRepositoryImpl()));
 
-    private final TrainingsService trainingsService = new TrainingsService();
+    private final TrainingsService trainingsService =
+            new TrainingsService(new TrainingOfUserDAOImpl(new TrainingOfUserRepositoryImpl()),
+                    new TypeOfTrainingDAOImpl(new TypeOfTrainingRepositoryImpl()));
 
     private final Input input = new InputImpl();
 
-    private final Messages console = new Messages();
+    private final Messages console = new Messages(new OutputImpl());
 
     private String loginOfCurrentUser = null;
 

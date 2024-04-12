@@ -1,4 +1,4 @@
-package dev.makeev.training_diary_app.repository;
+package dev.makeev.training_diary_app.repository.impl;
 
 import dev.makeev.training_diary_app.model.UserLogEvent;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,16 +16,16 @@ import static org.mockito.Mockito.when;
 
 @DisplayName("LogsRepository Test")
 @ExtendWith(MockitoExtension.class)
-class LogsRepositoryTest {
+class LogsRepositoryImplTest {
 
     private static final String LOGIN_1 = "TestLogin1";
     private static final String LOGIN_2 = "TestLogin2";
 
-    private LogsRepository logsRepository;
+    private LogsRepositoryImpl logsRepositoryImpl;
 
     @BeforeEach
     void setUp() {
-        logsRepository = new LogsRepository();
+        logsRepositoryImpl = new LogsRepositoryImpl();
     }
 
     @Test
@@ -37,10 +37,10 @@ class LogsRepositoryTest {
         final UserLogEvent testUserLogEvent2 = mock(UserLogEvent.class);
         when(testUserLogEvent2.login()).thenReturn(LOGIN_2);
 
-        List<UserLogEvent> events = logsRepository.getAll();
+        List<UserLogEvent> events = logsRepositoryImpl.getAll();
         int sizeBeforeAdd = events.size();
-        logsRepository.add(testUserLogEvent1);
-        logsRepository.add(testUserLogEvent2);
+        logsRepositoryImpl.add(testUserLogEvent1);
+        logsRepositoryImpl.add(testUserLogEvent2);
         int sizeAfterAdd = events.size();
 
         assertNotNull(events);
@@ -61,9 +61,9 @@ class LogsRepositoryTest {
         final UserLogEvent testUserLogEvent2 = mock(UserLogEvent.class);
         when(testUserLogEvent2.login()).thenReturn(LOGIN_2);
 
-        logsRepository.add(testUserLogEvent1);
-        logsRepository.add(testUserLogEvent2);
-        List<UserLogEvent> events = logsRepository.getAll();
+        logsRepositoryImpl.add(testUserLogEvent1);
+        logsRepositoryImpl.add(testUserLogEvent2);
+        List<UserLogEvent> events = logsRepositoryImpl.getAll();
 
         assertNotNull(events);
         assertThat(events).hasSize(2);

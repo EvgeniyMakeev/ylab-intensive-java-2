@@ -32,7 +32,7 @@ public class InputImpl implements Input {
         do {
             optionString = input.nextLine();
 
-            isValid = optionString.matches("[0-" + max + "]+");
+            isValid = optionString.matches("[0-9]+") && Integer.parseInt(optionString) <= max;
 
             if (isValid) {
                 option = Integer.parseInt(optionString);
