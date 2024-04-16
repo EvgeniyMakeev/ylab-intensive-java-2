@@ -19,10 +19,6 @@ import dev.makeev.training_diary_app.model.TypeOfTraining;
 import dev.makeev.training_diary_app.model.User;
 import dev.makeev.training_diary_app.out.Messages;
 import dev.makeev.training_diary_app.out.OutputImpl;
-import dev.makeev.training_diary_app.repository.impl.LogsRepositoryImpl;
-import dev.makeev.training_diary_app.repository.impl.TrainingOfUserRepositoryImpl;
-import dev.makeev.training_diary_app.repository.impl.TypeOfTrainingRepositoryImpl;
-import dev.makeev.training_diary_app.repository.impl.UserRepositoryImpl;
 
 
 import java.time.LocalDate;
@@ -30,13 +26,13 @@ import java.time.YearMonth;
 import java.util.List;
 
 public class AppUI {
-    private final UserService userService = new UserService(new UserDAOImpl(new UserRepositoryImpl()));
+    private final UserService userService = new UserService(new UserDAOImpl());
 
-    private final AdminService adminService = new AdminService(new UserLogEventDAOImpl(new LogsRepositoryImpl()));
+    private final AdminService adminService = new AdminService(new UserLogEventDAOImpl());
 
     private final TrainingsService trainingsService =
-            new TrainingsService(new TrainingOfUserDAOImpl(new TrainingOfUserRepositoryImpl()),
-                    new TypeOfTrainingDAOImpl(new TypeOfTrainingRepositoryImpl()));
+            new TrainingsService(new TrainingOfUserDAOImpl(),
+                    new TypeOfTrainingDAOImpl());
 
     private final Input input = new InputImpl();
     private final Messages console = new Messages(new OutputImpl());

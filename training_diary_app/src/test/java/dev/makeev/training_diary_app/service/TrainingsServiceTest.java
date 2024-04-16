@@ -82,7 +82,7 @@ class TrainingsServiceTest {
     @Test
     @DisplayName("Add Training Of User - Should add training for user")
     void addTrainingOfUser_shouldAddTrainingForUser() throws EmptyException, UserNotFoundException, TrainingOnDateAlreadyExistsException {
-        when(typeOfTrainingDAO.getBy(TYPE_1)).thenReturn(TYPE_OF_TRAINING_1);
+        when(typeOfTrainingDAO.getByType(TYPE_1)).thenReturn(TYPE_OF_TRAINING_1);
         when(trainingOfUserDAO.getByLogin(LOGIN)).thenReturn(List.of());
 
         trainingsService.addTrainingOfUser(LOGIN, TYPE_1, DATE_1, 111.1, 222.2);

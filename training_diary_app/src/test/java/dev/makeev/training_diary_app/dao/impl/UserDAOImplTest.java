@@ -1,73 +1,72 @@
 package dev.makeev.training_diary_app.dao.impl;
 
 import dev.makeev.training_diary_app.model.User;
-import dev.makeev.training_diary_app.repository.UserRepository;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @DisplayName("UserDAOImpl Test")
 @ExtendWith(MockitoExtension.class)
 class UserDAOImplTest {
 
-    private static final String LOGIN = "TestUser";
+    private final static String LOGIN = "TestLogin";
     private static final String PASSWORD = "TestPassword";
+    private final static String WRONG_LOGIN = "WrongTestLogin";
 
-    @Mock
-    private UserRepository repository;
-
-    @InjectMocks
     private UserDAOImpl userDAO;
 
-    @Test
-    @DisplayName("Add User - Should add new user to repository")
-    void add_shouldAddUserToRepository() {
-        userDAO.add(LOGIN, PASSWORD);
-
-        verify(repository, times(1)).add(new User(LOGIN, PASSWORD, false));
+    @BeforeEach
+    public void setUp() {
+        userDAO = new UserDAOImpl();
     }
 
     @Test
-    @DisplayName("Get By Login - Should return user from repository")
-    void getBy_shouldReturnUserFromRepository() {
-        User user = new User(LOGIN, PASSWORD, false);
-        when(repository.getBy(LOGIN)).thenReturn(user);
+    @DisplayName("Add User - Should add new user")
+    void add_shouldAddUser() {
+        List<User> users = userDAO.getAll();
+        int sizeBeforeAdd = users.size();
+        userDAO.add(LOGIN, PASSWORD);
+        List<User> usersAfterAdd = userDAO.getAll();
 
-        Optional<User> result = userDAO.getBy(LOGIN);
+        Assertions.assertThat(usersAfterAdd).hasSize(sizeBeforeAdd + 1);
+        assertThat(userDAO.getByLogin(LOGIN)).isNotNull();
+    }
 
-        assertThat(result.isPresent()).isTrue();
-        assertThat(result.get()).isEqualTo(user);
+    @Test
+    @DisplayName("Get User by login - Success")
+    void getBy_shouldGetUser_whenExists() {
+        userDAO.add(LOGIN, PASSWORD);
+
+        Optional<User> user = userDAO.getByLogin(LOGIN);
+
+        assertThat(user).isPresent();
+        assertThat(user.get().password()).isEqualTo(PASSWORD);
     }
 
     @Test
     @DisplayName("Get By Login - Should return empty optional if user does not exist")
     void getBy_shouldReturnEmptyOptionalIfUserDoesNotExist() {
-        when(repository.getBy(LOGIN)).thenReturn(null);
+        userDAO.add(LOGIN, PASSWORD);
+        Optional<User> result = userDAO.getByLogin(WRONG_LOGIN);
 
-        Optional<User> result = userDAO.getBy(LOGIN);
-
-        assertThat(result.isPresent()).isFalse();
+        assertThat(result).isEmpty();
     }
 
     @Test
-    @DisplayName("Get All Users - Should return all users from repository")
-    void getAll_shouldReturnAllUsersFromRepository() {
-        List<User> mockUsers = List.of(new User("User1", "Password1", false), new User("User2", "Password2", false));
-        when(repository.getAll()).thenReturn(mockUsers);
-
+    @DisplayName("Get All Users - Should return all users")
+    void getAll_shouldReturnAllUsers() {
+        userDAO.add(LOGIN, PASSWORD);
         List<User> users = userDAO.getAll();
 
-        assertThat(users).isEqualTo(mockUsers);
+        assertThat(users).isNotNull();
+        assertThat(userDAO.getByLogin(LOGIN)).isNotNull();
     }
 }

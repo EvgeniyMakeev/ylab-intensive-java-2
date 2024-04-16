@@ -2,9 +2,10 @@ package dev.makeev.training_diary_app.dao.impl;
 
 import dev.makeev.training_diary_app.dao.UserDAO;
 import dev.makeev.training_diary_app.model.User;
-import dev.makeev.training_diary_app.repository.UserRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -14,16 +15,26 @@ import java.util.Optional;
  */
 public class UserDAOImpl implements UserDAO {
 
-    private final UserRepository repository;
+    /**
+     * A map storing User entities with login as the key.
+     */
+    private final Map<String, User> mapOfUser;
 
-    public UserDAOImpl(UserRepository repository) {
-        this.repository = repository;
-        repository.add(new User("DemoUser", "1234",false));
+    {
+        mapOfUser = new HashMap<>();
+        String loginAdmin = "admin";
+        User admin = new User(loginAdmin, "admin", true);
+        mapOfUser.put(loginAdmin, admin);
+
+        String loginDemoUser = "DemoUser";
+        User demoUser = new User(loginDemoUser, "1234", false);
+        mapOfUser.put(loginDemoUser, demoUser);
     }
 
     @Override
     public void add(String login, String password) {
-        repository.add(new User(login, password, false));
+        User user = new User(login, password, false);
+        mapOfUser.put(user.login(), user);
     }
 
     /**
@@ -33,8 +44,8 @@ public class UserDAOImpl implements UserDAO {
      * @return An {@code Optional} containing the User if found, or empty if not found.
      */
     @Override
-    public Optional<User> getBy(String login){
-        return Optional.ofNullable(repository.getBy(login));
+    public Optional<User> getByLogin(String login) {
+        return Optional.ofNullable(mapOfUser.get(login));
     }
 
     /**
@@ -44,7 +55,6 @@ public class UserDAOImpl implements UserDAO {
      */
     @Override
     public List<User> getAll() {
-        return repository.getAll();
+        return mapOfUser.values().stream().toList();
     }
-
 }

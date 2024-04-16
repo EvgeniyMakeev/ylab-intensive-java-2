@@ -1,14 +1,9 @@
 package dev.makeev.training_diary_app.dao.impl;
 
 import dev.makeev.training_diary_app.model.UserLogEvent;
-import dev.makeev.training_diary_app.repository.LogsRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,38 +11,48 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("UserLogEventDAO Test")
-@ExtendWith(MockitoExtension.class)
 class UserLogEventDAOTest {
 
     private static final LocalDate DATE = LocalDate.now();
     private static final String LOGIN = "TestUser";
     private static final String MESSAGE = "TestMessage";
 
-    @Mock
-    private LogsRepository logsRepository;
-
-    @InjectMocks
     private UserLogEventDAOImpl userLogEventDAO;
 
+    @BeforeEach
+    public void setUp() {
+        userLogEventDAO = new UserLogEventDAOImpl();
+    }
 
     @Test
-    @DisplayName("Add Log Event - Should add log event to repository")
-    void addLogEvent_shouldAddLogEventToRepository() {
+    @DisplayName("Add Log Event - Should add log event")
+    void addLogEvent_shouldAddLogEvent() {
+        List<UserLogEvent> events = userLogEventDAO.getAll();
+        int sizeBeforeAdd = events.size();
         userLogEventDAO.add(DATE, LOGIN, MESSAGE);
+        List<UserLogEvent> eventsAfterAdd = userLogEventDAO.getAll();
+        int sizeAfterAdd = eventsAfterAdd.size();
 
-        Mockito.verify(logsRepository, Mockito.times(1)).add(Mockito.any(UserLogEvent.class));
+        assertThat(eventsAfterAdd).isNotNull();
+        assertThat(eventsAfterAdd).isNotEmpty();
+        assertThat(eventsAfterAdd).hasSize(sizeAfterAdd - sizeBeforeAdd);
+        assertThat(eventsAfterAdd.get(0).date()).isEqualTo(DATE);
+        assertThat(eventsAfterAdd.get(0).login()).isEqualTo(LOGIN);
+        assertThat(eventsAfterAdd.get(0).message()).isEqualTo(MESSAGE);
     }
 
     @Test
     @DisplayName("Get All Log Events - Should get all log events from repository")
     void getAllLogEvents_shouldGetAllLogEventsFromRepository() {
-        List<UserLogEvent> mockEvents = List.of(new UserLogEvent(LocalDate.now(), "User1", "Message1"),
-                new UserLogEvent(LocalDate.now(), "User2", "Message2"));
-        Mockito.when(logsRepository.getAll()).thenReturn(mockEvents);
+        List<UserLogEvent> events = userLogEventDAO.getAll();
+        int sizeBeforeAdd = events.size();
+        userLogEventDAO.add(DATE, LOGIN, MESSAGE);
+        userLogEventDAO.add(LocalDate.now(), "TestLogin2", "SomeMessage");
+        List<UserLogEvent> eventsAfterAdd = userLogEventDAO.getAll();
+        int sizeAfterAdd = eventsAfterAdd.size();
 
-        List<UserLogEvent> result = userLogEventDAO.getAll();
-
-        assertThat(result).isEqualTo(mockEvents);
-        Mockito.verify(logsRepository, Mockito.times(1)).getAll();
+        assertThat(eventsAfterAdd).isNotNull();
+        assertThat(eventsAfterAdd).isNotEmpty();
+        assertThat(eventsAfterAdd).hasSize(sizeAfterAdd - sizeBeforeAdd);
     }
 }

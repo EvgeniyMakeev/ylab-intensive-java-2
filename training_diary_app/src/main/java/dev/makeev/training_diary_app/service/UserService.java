@@ -31,7 +31,7 @@ public class UserService {
     }
 
     public boolean existByLogin(String login) {
-        return userDAO.getBy(login).isPresent();
+        return userDAO.getByLogin(login).isPresent();
     }
 
     /**
@@ -42,7 +42,7 @@ public class UserService {
      * @throws VerificationException If the verification fails.
      */
     public void checkCredentials(String login, String password) throws VerificationException {
-        Optional<User> user = userDAO.getBy(login);
+        Optional<User> user = userDAO.getByLogin(login);
         if (user.isEmpty() || !user.get().password().equals(password)) {
             throw new VerificationException();
         }
@@ -55,7 +55,7 @@ public class UserService {
      * @return {@code true} if the user is an admin, {@code false} otherwise.
      */
     public boolean isAdmin(String login) throws UserNotFoundException {
-        return userDAO.getBy(login).orElseThrow(UserNotFoundException::new).admin();
+        return userDAO.getByLogin(login).orElseThrow(UserNotFoundException::new).admin();
     }
 
     public List<User> getAll() {

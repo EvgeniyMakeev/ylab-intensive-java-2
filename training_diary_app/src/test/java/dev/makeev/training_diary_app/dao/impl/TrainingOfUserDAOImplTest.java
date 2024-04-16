@@ -2,93 +2,95 @@ package dev.makeev.training_diary_app.dao.impl;
 
 import dev.makeev.training_diary_app.model.Training;
 import dev.makeev.training_diary_app.model.TypeOfTraining;
-import dev.makeev.training_diary_app.repository.TrainingOfUserRepository;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 @DisplayName("TrainingOfUserDAO Test")
 @ExtendWith(MockitoExtension.class)
 class TrainingOfUserDAOImplTest {
 
-    private static final String LOGIN = "TestLogin";
+    private final static String LOGIN = "TestLogin";
+    private final static String WRONG_TEST_LOGIN = "WrongTestLogin";
+    private final static TypeOfTraining TEST_TYPE_1 = mock(TypeOfTraining.class);
+    private final static TypeOfTraining TEST_TYPE_2 = mock(TypeOfTraining.class);
 
-    @Mock
-    private TrainingOfUserRepository trainingOfUserRepository;
-
-    @InjectMocks
     private TrainingOfUserDAOImpl trainingDAO;
 
-    @Test
-    @DisplayName("Adding Training - Should save Training to repository")
-    void addTraining_shouldSaveTrainingToRepository() {
-        final TypeOfTraining testTypeOfTraining = Mockito.mock(TypeOfTraining.class);
-        final LocalDate localDate = LocalDate.now();
-
-        trainingDAO.add(LOGIN, testTypeOfTraining, localDate, 30.0, 200.0);
-
-        Mockito.verify(trainingOfUserRepository, Mockito.times(1)).add(Mockito.eq(LOGIN), Mockito.any(Training.class));
+    @BeforeEach
+    public void setUp() {
+        trainingDAO = new TrainingOfUserDAOImpl();
     }
 
     @Test
-    @DisplayName("Get Trainings by login - Should get Training by login from repository")
-    void getTrainingsByLogin_shouldGetTrainingByLoginFromRepository() {
-        final Training testTraining1 = Mockito.mock(Training.class);
-        final Training testTraining2 = Mockito.mock(Training.class);
-        List<Training> mockTrainings = new ArrayList<>();
-        mockTrainings.add(testTraining1);
-        mockTrainings.add(testTraining2);
+    @DisplayName("Adding Training - Should save Training")
+    void addTraining_shouldSaveTraining() {
+        List<Training> trainings = trainingDAO.getAll();
+        int sizeBeforeAdd = trainings.size();
+        trainingDAO.add(LOGIN, TEST_TYPE_1, LocalDate.now(), 100.0, 200.0);
+        int sizeAfterAdd = trainings.size();
 
-        Mockito.when(trainingOfUserRepository.getBy(LOGIN)).thenReturn(mockTrainings);
-
-        trainingDAO.getByLogin(LOGIN);
-
-        Mockito.verify(trainingOfUserRepository, Mockito.times(1)).getBy(Mockito.eq(LOGIN));
+        assertNotNull(trainings);
+        Assertions.assertThat(trainings).hasSize(sizeAfterAdd - sizeBeforeAdd);
     }
 
     @Test
-    @DisplayName("Get All Trainings - Should get all Trainings from repository")
-    void getAllTrainings_shouldGetAllTrainingsFromRepository() {
-        final Training testTraining1 = Mockito.mock(Training.class);
-        final Training testTraining2 = Mockito.mock(Training.class);
-        List<Training> mockTrainings = new ArrayList<>();
-        mockTrainings.add(testTraining1);
-        mockTrainings.add(testTraining2);
-        Map<String, List<Training>> mockMap = new HashMap<>();
-        mockMap.put(LOGIN, mockTrainings);
+    @DisplayName("Get Trainings by login - Should get Training by login")
+    void getTrainingsByLogin_shouldGetTrainingByLogin() {
+        trainingDAO.add(LOGIN, TEST_TYPE_1, LocalDate.now(), 100.0, 200.0);
+        trainingDAO.add(LOGIN, TEST_TYPE_2, LocalDate.now().plusDays(1), 200.0, 300.0);
+        List<Training> trainings = trainingDAO.getByLogin(LOGIN);
 
-        Mockito.when(trainingOfUserRepository.getAll()).thenReturn(mockMap);
+        assertNotNull(trainings);
+        Assertions.assertThat(trainings).hasSize(2);
+        assertThat(trainings.get(0).type()).isEqualTo(TEST_TYPE_1);
+        assertThat(trainings.get(1).type()).isEqualTo(TEST_TYPE_2);
+        assertThat(trainingDAO.getByLogin(WRONG_TEST_LOGIN).isEmpty()).isTrue();
+    }
 
-        trainingDAO.getAll();
+    @Test
+    @DisplayName("Get All Trainings - Should get all Trainings")
+    void getAllTrainings_shouldGetAllTrainings() {
+        trainingDAO.add(LOGIN, TEST_TYPE_1, LocalDate.now(), 100.0, 200.0);
+        trainingDAO.add(LOGIN, TEST_TYPE_2, LocalDate.now().plusDays(1), 200.0, 300.0);
 
-        Mockito.verify(trainingOfUserRepository, Mockito.times(1)).getAll();
+        List<Training> trainings = trainingDAO.getAll();
+
+        assertNotNull(trainings);
+        Assertions.assertThat(trainings).hasSize(2);
+        assertThat(trainings.get(0).type()).isEqualTo(TEST_TYPE_1);
+        assertThat(trainings.get(1).type()).isEqualTo(TEST_TYPE_2);
     }
 
 
     @Test
-    @DisplayName("Delete Training - Should delete Training by index from repository")
-    void deleteTraining_shouldDeleteTrainingFromRepository() {
+    @DisplayName("Delete Training - Should delete Training by index")
+    void deleteTraining_shouldDeleteTraining() {
+        trainingDAO.add(LOGIN, TEST_TYPE_1, LocalDate.now(), 100.0, 200.0);
+        trainingDAO.add(LOGIN, TEST_TYPE_2, LocalDate.now().plusDays(1), 200.0, 300.0);
+        List<Training> trainingsBeforeDelete = trainingDAO.getAll();
+
         trainingDAO.delete(0, LOGIN);
+        List<Training> trainingsAfterDelete = trainingDAO.getAll();
 
-        Mockito.verify(trainingOfUserRepository, Mockito.times(1)).delete(Mockito.eq(0), Mockito.eq(LOGIN));
+        Assertions.assertThat(trainingsAfterDelete).hasSize(trainingsBeforeDelete.size() - 1);
+        assertThat(trainingDAO.getByLogin(LOGIN).size()).isEqualTo(1);
     }
 
     @Test
     @DisplayName("Edit Training - Should edit existing training")
     void edit_shouldEditExistingTraining() {
-        String login = "testUser";
-        TypeOfTraining oldType = new TypeOfTraining("OldType");
-        TypeOfTraining newType = new TypeOfTraining("NewType");
+        TypeOfTraining newType = TEST_TYPE_2;
         LocalDate oldDate = LocalDate.of(2022, 1, 1);
         LocalDate newDate = LocalDate.of(2022, 1, 2);
         double oldDuration = 30.0;
@@ -96,14 +98,14 @@ class TrainingOfUserDAOImplTest {
         double oldCaloriesBurned = 200.0;
         double newCaloriesBurned = 250.0;
 
-        Training oldTraining = new Training(oldType, oldDate, oldDuration, oldCaloriesBurned);
-        Training editedTraining = new Training(newType, newDate, newDuration, newCaloriesBurned);
+        trainingDAO.add(LOGIN, TEST_TYPE_1, oldDate, oldDuration, oldCaloriesBurned);
+        trainingDAO.edit(0, LOGIN, newType, newDate, newDuration, newCaloriesBurned);
+        Training editedTraining = trainingDAO.getByLogin(LOGIN).get(0);
 
-        Mockito.when(trainingOfUserRepository.getAll()).thenReturn(Map.of(login, List.of(oldTraining)));
-
-        trainingDAO.edit(0, login, newType, newDate, newDuration, newCaloriesBurned);
-
-        Mockito.verify(trainingOfUserRepository, Mockito.times(1)).edit(0, login, editedTraining);
+        assertThat(editedTraining.type()).isEqualTo(newType);
+        assertThat(editedTraining.date()).isEqualTo(newDate);
+        assertThat(editedTraining.duration()).isEqualTo(newDuration);
+        assertThat(editedTraining.caloriesBurned()).isEqualTo(newCaloriesBurned);
     }
 
 }

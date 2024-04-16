@@ -82,7 +82,7 @@ public class TrainingsService {
         if (trainingOfUserDAO.getByLogin(login).stream().anyMatch(training -> training.date().isEqual(date))) {
             throw new TrainingOnDateAlreadyExistsException();
         } else {
-            TypeOfTraining type = typeOfTrainingDAO.getBy(typeOfTraining);
+            TypeOfTraining type = typeOfTrainingDAO.getByType(typeOfTraining);
             trainingOfUserDAO.add(login, type, date, duration, caloriesBurned);
         }
     }
@@ -132,7 +132,7 @@ public class TrainingsService {
                 throw new TrainingOnDateAlreadyExistsException();
             }
         }
-        TypeOfTraining type = typeOfTrainingDAO.getBy(typeOfTraining);
+        TypeOfTraining type = typeOfTrainingDAO.getByType(typeOfTraining);
         trainingOfUserDAO.edit(index - 1, login, type, date, duration,caloriesBurned);
     }
 

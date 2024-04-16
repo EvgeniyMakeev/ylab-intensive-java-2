@@ -26,7 +26,7 @@ public interface UserDAO {
      * @return An {@code Optional} containing the User entity if found,
      *         or empty if not found.
      */
-    Optional<User> getBy(String login);
+    Optional<User> getByLogin(String login);
 
     /**
      * Retrieves a list of all User entities.

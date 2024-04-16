@@ -20,7 +20,7 @@ public interface TypeOfTrainingDAO {
      * @return The TypeOfTraining entity with the specified type.
      * @throws EmptyException If no TypeOfTraining entity with the specified type is found.
      */
-    TypeOfTraining getBy(String type) throws EmptyException;
+    TypeOfTraining getByType(String type) throws EmptyException;
 
     /**
      * Retrieves a list of all TypeOfTraining entities.
