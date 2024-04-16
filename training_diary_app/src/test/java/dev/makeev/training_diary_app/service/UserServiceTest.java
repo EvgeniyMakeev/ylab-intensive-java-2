@@ -15,10 +15,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -59,8 +57,10 @@ class UserServiceTest {
     void checkCredentials_shouldVerifyUserCredentials() {
         when(userDAO.getBy(LOGIN)).thenReturn(Optional.of(new User(LOGIN, PASSWORD, false)));
 
-        assertThrows(VerificationException.class, () -> userService.checkCredentials(LOGIN, "WrongPassword"));
-        assertDoesNotThrow(() -> userService.checkCredentials(LOGIN, PASSWORD));
+        assertThatExceptionOfType(VerificationException.class)
+                .isThrownBy(() -> userService.checkCredentials(LOGIN, "WrongPassword"));
+        assertThatCode(() -> userService.checkCredentials(LOGIN, PASSWORD))
+                .doesNotThrowAnyException();
         verify(userDAO, times(2)).getBy(eq(LOGIN));
     }
 
@@ -69,7 +69,8 @@ class UserServiceTest {
     void getByLogin_shouldThrowUserNotFoundExceptionIfUserDoesNotExist() {
         when(userDAO.getBy(LOGIN)).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userService.isAdmin(LOGIN));
+        assertThatExceptionOfType(UserNotFoundException.class)
+                .isThrownBy(() -> userService.isAdmin(LOGIN));
     }
 
     @Test
@@ -79,7 +80,7 @@ class UserServiceTest {
 
         boolean result = userService.isAdmin(LOGIN);
 
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -89,7 +90,7 @@ class UserServiceTest {
 
         boolean result = userService.isAdmin(LOGIN);
 
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test

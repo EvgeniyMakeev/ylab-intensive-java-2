@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
@@ -52,7 +52,8 @@ class TypeOfTrainingDAOImplTest {
     void getByType_shouldThrowEmptyExceptionWhenTypeNotFound() {
         when(typeOfTrainingRepository.getBy(TYPE)).thenReturn(Optional.empty());
 
-        assertThrows(EmptyException.class, () -> typeOfTrainingDAO.getBy(TYPE));
+        assertThatExceptionOfType(EmptyException.class)
+                .isThrownBy(() -> typeOfTrainingDAO.getBy(TYPE));
         verify(typeOfTrainingRepository, times(1)).getBy(eq(TYPE));
     }
 
@@ -80,7 +81,9 @@ class TypeOfTrainingDAOImplTest {
     @Test
     @DisplayName("Get By Index - Should throw EmptyException when index out of bounds")
     void getByIndex_shouldThrowEmptyExceptionWhenIndexOutOfBounds() {
-        assertThrows(EmptyException.class, () -> typeOfTrainingDAO.getByIndex(INDEX));
+
+        assertThatExceptionOfType(EmptyException.class)
+                .isThrownBy(() -> typeOfTrainingDAO.getByIndex(INDEX));
         verify(typeOfTrainingRepository, times(1)).getAll();
     }
 }

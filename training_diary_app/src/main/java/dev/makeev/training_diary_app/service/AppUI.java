@@ -209,15 +209,14 @@ public class AppUI {
 
     private void showTrainingMenu(int indexForEdit) {
         String typeOfTraining = null;
+        List<TypeOfTraining> listOfTypes = trainingsService.getAllTypesOfTraining();
         console.choiceTypeOfTrainingMessage();
-        console.getTypesOfTraining(trainingsService.getAllTypesOfTraining());
+        console.getTypesOfTraining(listOfTypes);
         console.choiceTypeMessage();
         userOption = input.getInt(2);
 
         switch (userOption) {
             case 1 -> {
-                List<TypeOfTraining> listOfTypes = trainingsService.getAllTypesOfTraining();
-                console.getTypesOfTraining(listOfTypes);
                 int index = input.getInt(listOfTypes.size());
                 try {
                     typeOfTraining = trainingsService

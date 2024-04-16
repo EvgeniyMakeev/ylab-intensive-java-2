@@ -13,8 +13,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @DisplayName("UserDAOImpl Test")
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +46,7 @@ class UserDAOImplTest {
 
         Optional<User> result = userDAO.getBy(LOGIN);
 
-        assertTrue(result.isPresent());
+        assertThat(result.isPresent()).isTrue();
         assertThat(result.get()).isEqualTo(user);
     }
 
@@ -56,7 +57,7 @@ class UserDAOImplTest {
 
         Optional<User> result = userDAO.getBy(LOGIN);
 
-        assertFalse(result.isPresent());
+        assertThat(result.isPresent()).isFalse();
     }
 
     @Test

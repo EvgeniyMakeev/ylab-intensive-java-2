@@ -21,13 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @DisplayName("TrainingsService Test")
@@ -60,7 +56,7 @@ class TrainingsServiceTest {
         List<TypeOfTraining> result = trainingsService.getAllTypesOfTraining();
 
         assertThat(result).isEqualTo(mockTypes);
-        Mockito.verify(typeOfTrainingDAO, Mockito.times(1)).getAll();
+        verify(typeOfTrainingDAO, Mockito.times(1)).getAll();
     }
 
     @Test
@@ -71,8 +67,8 @@ class TrainingsServiceTest {
 
         String result = trainingsService.getTypeOfTrainingByIndex(0);
 
-        assertEquals(TYPE_1, result);
-        Mockito.verify(typeOfTrainingDAO, Mockito.times(1)).getByIndex(0);
+        assertThat(TYPE_1).isEqualTo(result);
+        verify(typeOfTrainingDAO, Mockito.times(1)).getByIndex(0);
     }
 
     @Test
@@ -80,7 +76,7 @@ class TrainingsServiceTest {
     void addTypeOfTraining_shouldCallDAOAddMethodWithCorrectParameter() {
         trainingsService.addTypeOfTraining(TYPE_1);
 
-        Mockito.verify(typeOfTrainingDAO, Mockito.times(1)).add(TYPE_1);
+        verify(typeOfTrainingDAO, Mockito.times(1)).add(TYPE_1);
     }
 
     @Test
@@ -91,7 +87,7 @@ class TrainingsServiceTest {
 
         trainingsService.addTrainingOfUser(LOGIN, TYPE_1, DATE_1, 111.1, 222.2);
 
-        Mockito.verify(trainingOfUserDAO, Mockito.times(1))
+        verify(trainingOfUserDAO, Mockito.times(1))
                 .add(LOGIN, TYPE_OF_TRAINING_1, DATE_1, 111.1, 222.2);
     }
 
@@ -105,8 +101,10 @@ class TrainingsServiceTest {
         when(TRAINING.duration()).thenReturn(111.1);
         when(TRAINING.caloriesBurned()).thenReturn(222.2);
 
-        assertThrows(TrainingOnDateAlreadyExistsException.class, () ->
-                trainingsService.addTrainingOfUser(LOGIN, TYPE_1, DATE_1, 111.1, 222.2));
+        assertThatExceptionOfType(TrainingOnDateAlreadyExistsException.class)
+                .isThrownBy(() ->
+                        trainingsService.addTrainingOfUser(
+                                LOGIN, TYPE_1, DATE_1, 111.1, 222.2));
     }
 
     @Test
@@ -117,7 +115,7 @@ class TrainingsServiceTest {
 
         List<Training> result = trainingsService.getAllTrainingsForUser(LOGIN);
 
-        assertEquals(expectedTrainings, result);
+        assertThat(expectedTrainings).isEqualTo(result);
     }
 
     @Test
@@ -128,19 +126,21 @@ class TrainingsServiceTest {
 
         List<Training> result = trainingsService.getAll();
 
-        assertEquals(expectedTrainings, result);
+        assertThat(expectedTrainings).isEqualTo(result);
     }
 
     @Test
     @DisplayName("Edit - Should edit training")
     void edite_shouldEditTraining() {
-        assertDoesNotThrow(() -> trainingsService.edite(1, LOGIN, TYPE_1, DATE_1, 111.1, 222.2));
+        assertThatCode(() -> trainingsService.edite(1, LOGIN, TYPE_1, DATE_1, 111.1, 222.2))
+                .doesNotThrowAnyException();
     }
 
     @Test
     @DisplayName("Delete - Should delete training")
     void delete_shouldDeleteTraining() {
-        assertDoesNotThrow(() -> trainingsService.delete(1, LOGIN));
+        assertThatCode(() -> trainingsService.delete(1, LOGIN))
+                .doesNotThrowAnyException();
     }
 
     @Test
@@ -152,8 +152,8 @@ class TrainingsServiceTest {
 
         trainingsService.editAdditionalInfo(training, info, value);
 
-        assertTrue(training.additionalInfo().containsKey(info));
-        assertEquals(value, training.additionalInfo().get(info));
+        assertThat(training.additionalInfo().containsKey(info)).isTrue();
+        assertThat(value).isEqualTo(training.additionalInfo().get(info));
     }
 
     @Test
@@ -164,7 +164,7 @@ class TrainingsServiceTest {
 
         List<Training> result = trainingsService.getAllTrainingsForUserByTypeOfTraining(LOGIN, TYPE_1);
 
-        assertEquals(expectedTrainings, result);
+        assertThat(expectedTrainings).isEqualTo(result);
     }
 
     @Test
@@ -176,9 +176,9 @@ class TrainingsServiceTest {
 
         Statistic statistic = trainingsService.getStatistic(trainingList, 1);
 
-        assertNotNull(statistic);
-        assertEquals(40.0, statistic.minValue());
-        assertEquals(60.0, statistic.maxValue());
-        assertEquals(100.0, statistic.totalValue());
+        assertThat(statistic).isNotNull();
+        assertThat(statistic.minValue()).isEqualTo(40.0);
+        assertThat(statistic.maxValue()).isEqualTo(60.0);
+        assertThat(statistic.totalValue()).isEqualTo(100.0);
     }
 }
