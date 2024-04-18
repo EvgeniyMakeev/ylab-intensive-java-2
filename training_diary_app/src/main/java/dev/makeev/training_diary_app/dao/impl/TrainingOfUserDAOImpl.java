@@ -93,76 +93,6 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
     }
 
     @Override
-    public Map<String, List<Training>> getAll() throws EmptyException {
-        try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(GET_ALL_SQL)) {
-            var result = statement.executeQuery();
-            Map<String, List<Training>> mapOfTraining = new HashMap<>();
-            while (result.next()) {
-                long trainingId = result.getLong("id");
-                String login = result.getString("user_login");
-                long typeOfTrainingId = result.getLong("type_of_training_id");
-                LocalDate date = result.getDate("date").toLocalDate();
-                Double duration = result.getDouble("duration");
-                Double caloriesBurned = result.getDouble("calories_burned");
-                Training training = new Training(trainingId, typeOfTrainingId, date, duration, caloriesBurned);
-
-                if (mapOfTraining.containsKey(login)) {
-                    mapOfTraining.get(login).add(training);
-                } else {
-                    List<Training> trainingList = new ArrayList<>();
-                    trainingList.add(training);
-                    mapOfTraining.put(login,trainingList);
-                }
-            }
-            if (mapOfTraining.isEmpty()) {
-                throw new EmptyException();
-            }
-            return mapOfTraining;
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
-
-    @Override
-    public void edit(long idOfTrainingForEdite, Training newTraining) {
-        try (var connection = connectionManager.open();
-             var statementDelete = connection.prepareStatement(UPDATE_SQL)) {
-            statementDelete.setLong(1, newTraining.typeOfTrainingId());
-            statementDelete.setDate(2, Date.valueOf(newTraining.date()));
-            statementDelete.setDouble(3, newTraining.duration());
-            statementDelete.setDouble(4, newTraining.caloriesBurned());
-
-            statementDelete.setLong(5, idOfTrainingForEdite);
-
-            statementDelete.executeUpdate();
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
-
-    @Override
-    public void delete(long id) {
-        try (var connection = connectionManager.open();
-             var statementDelete =
-                     connection.prepareStatement(DELETE_SQL);
-             var statementDeleteAdditionalInformation =
-                     connection.prepareStatement(DELETE_ADDITIONAL_INFORMATION_SQL)) {
-            connection.setAutoCommit(false);
-
-            statementDelete.setLong(1, id);
-            statementDelete.executeUpdate();
-
-            statementDeleteAdditionalInformation.setLong(1, id);
-            statementDeleteAdditionalInformation.executeUpdate();
-
-            connection.commit();
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
-
-    @Override
     public List<Training> getAllTrainingsForUserByTypeOfTraining(String login, long typeOfTrainingId) {
         try (var connection = connectionManager.open();
              var statement = connection.prepareStatement(GET_ALL_TRAININGS_FOR_USER_BY_TYPE_OF_TRAINING_SQL)) {
@@ -212,6 +142,43 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
                 additionalInformation.put(information, value);
             }
             return additionalInformation;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+    @Override
+    public void edit(long idOfTrainingForEdite, Training newTraining) {
+        try (var connection = connectionManager.open();
+             var statementDelete = connection.prepareStatement(UPDATE_SQL)) {
+            statementDelete.setLong(1, newTraining.typeOfTrainingId());
+            statementDelete.setDate(2, Date.valueOf(newTraining.date()));
+            statementDelete.setDouble(3, newTraining.duration());
+            statementDelete.setDouble(4, newTraining.caloriesBurned());
+
+            statementDelete.setLong(5, idOfTrainingForEdite);
+
+            statementDelete.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+
+    @Override
+    public void delete(long id) {
+        try (var connection = connectionManager.open();
+             var statementDelete =
+                     connection.prepareStatement(DELETE_SQL);
+             var statementDeleteAdditionalInformation =
+                     connection.prepareStatement(DELETE_ADDITIONAL_INFORMATION_SQL)) {
+            connection.setAutoCommit(false);
+
+            statementDelete.setLong(1, id);
+            statementDelete.executeUpdate();
+
+            statementDeleteAdditionalInformation.setLong(1, id);
+            statementDeleteAdditionalInformation.executeUpdate();
+
+            connection.commit();
         } catch (SQLException e) {
             throw new DaoException(e);
         }

@@ -35,20 +35,13 @@ public interface TrainingOfUserDAO {
      */
     List<Training> getByLogin(String login) throws EmptyException;
 
-    /**
-     * Retrieves all training records from the DAO.
-     *
-     * @return A list of all training records.
-     */
-    Map<String, List<Training>> getAll() throws EmptyException;
-
-    void edit(long idOfTrainingForEdite, Training newTraining);
-
-    void delete(long id);
-
     List<Training> getAllTrainingsForUserByTypeOfTraining(String login, long typeOfTrainingId) throws EmptyException;
 
     void addAdditionalInformation(long trainingId, Map<String, Double> additionalInformation);
 
     Map<String, Double> getAdditionalInformation(long id) throws EmptyException;
+
+    void edit(long idOfTrainingForEdite, Training newTraining);
+
+    void delete(long id);
 }

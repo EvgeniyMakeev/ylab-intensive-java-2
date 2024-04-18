@@ -17,7 +17,6 @@ public class TypeOfTrainingDAOImpl implements TypeOfTrainingDAO {
     private final static String GET_ALL_SQL = "SELECT * FROM non_public.types_of_training";
     private final static String GET_BY_ID_SQL = GET_ALL_SQL + " WHERE id=?";
     private static final String GET_BY_TYPE_SQL = GET_ALL_SQL + " WHERE type=?";
-    private final static String COUNT_SQL = "SELECT COUNT(*) FROM non_public.types_of_training";
     private final ConnectionManager connectionManager;
 
     public TypeOfTrainingDAOImpl(ConnectionManager connectionManager) {
@@ -65,21 +64,6 @@ public class TypeOfTrainingDAOImpl implements TypeOfTrainingDAO {
                 typeOfTraining = new TypeOfTraining(id,result.getString("type"));
             }
             return Optional.ofNullable(typeOfTraining);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
-
-    @Override
-    public int getNumberOfTypesOfTraining() {
-        try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(COUNT_SQL)) {
-            int numberOfTypesOfTraining = 0;
-            var result = statement.executeQuery();
-            if (result.next()) {
-                numberOfTypesOfTraining = result.getInt(1);
-            }
-            return numberOfTypesOfTraining;
         } catch (SQLException e) {
             throw new DaoException(e);
         }

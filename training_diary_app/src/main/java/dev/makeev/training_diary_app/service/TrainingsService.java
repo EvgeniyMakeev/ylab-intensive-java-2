@@ -93,31 +93,6 @@ public class TrainingsService {
         trainingList.sort(Comparator.comparing(Training::date));
         return getTrainingOfUsers(login, trainingList);
     }
-
-    public Map<String, List<Training>> getAll() throws EmptyException {
-        return trainingOfUserDAO.getAll();
-    }
-
-    /**
-     * Edits a training.
-     *
-     * @throws TrainingOnDateAlreadyExistsException if a training already exists on the given date.
-     * @throws EmptyException if no type of training is found.
-     */
-    public void edite(long idOfTrainingForEdite, TrainingOfUser newTrainingOfUser)
-            throws TrainingOnDateAlreadyExistsException, EmptyException {
-        String login = newTrainingOfUser.login();
-        List<Training> trainingList = trainingOfUserDAO.getByLogin(login);
-        LocalDate newDate = newTrainingOfUser.training().date();
-        for (Training training : trainingList) {
-            if (training.id() != idOfTrainingForEdite && training.date().isEqual(newDate)) {
-                throw new TrainingOnDateAlreadyExistsException();
-            }
-        }
-        trainingOfUserDAO.edit(idOfTrainingForEdite, newTrainingOfUser.training());
-    }
-
-
     public void delete(long id) {
         trainingOfUserDAO.delete(id);
     }
@@ -160,6 +135,25 @@ public class TrainingsService {
                             login, typeOfTraining.type(), training, additionalInformation));
         }
         return trainingOfUserList;
+    }
+
+    /**
+     * Edits a training.
+     *
+     * @throws TrainingOnDateAlreadyExistsException if a training already exists on the given date.
+     * @throws EmptyException if no type of training is found.
+     */
+    public void edite(long idOfTrainingForEdite, TrainingOfUser newTrainingOfUser)
+            throws TrainingOnDateAlreadyExistsException, EmptyException {
+        String login = newTrainingOfUser.login();
+        List<Training> trainingList = trainingOfUserDAO.getByLogin(login);
+        LocalDate newDate = newTrainingOfUser.training().date();
+        for (Training training : trainingList) {
+            if (training.id() != idOfTrainingForEdite && training.date().isEqual(newDate)) {
+                throw new TrainingOnDateAlreadyExistsException();
+            }
+        }
+        trainingOfUserDAO.edit(idOfTrainingForEdite, newTrainingOfUser.training());
     }
 
     /**
