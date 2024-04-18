@@ -26,7 +26,7 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
 
     private static final String UPDATE_SQL = "UPDATE non_public.trainings " +
             "SET type_of_training_id=?, date=?, duration=?, calories_burned=?" +
-            " WHERE training_id=?";
+            " WHERE id=?";
     private static final String DELETE_SQL =
             "DELETE FROM non_public.trainings WHERE id=?";
     private static final String GET_ALL_TRAININGS_FOR_USER_BY_TYPE_OF_TRAINING_SQL =
@@ -147,17 +147,21 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
         }
     }
     @Override
-    public void edit(long idOfTrainingForEdite, Training newTraining) {
+    public void edit(long idOfTrainingForEdite,
+                     long newTypeOfTrainingId,
+                     LocalDate newDate,
+                     Double newDuration,
+                     Double newCaloriesBurned) {
         try (var connection = connectionManager.open();
-             var statementDelete = connection.prepareStatement(UPDATE_SQL)) {
-            statementDelete.setLong(1, newTraining.typeOfTrainingId());
-            statementDelete.setDate(2, Date.valueOf(newTraining.date()));
-            statementDelete.setDouble(3, newTraining.duration());
-            statementDelete.setDouble(4, newTraining.caloriesBurned());
+             var statementEdite = connection.prepareStatement(UPDATE_SQL)) {
+            statementEdite.setLong(1, newTypeOfTrainingId);
+            statementEdite.setDate(2, Date.valueOf(newDate));
+            statementEdite.setDouble(3, newDuration);
+            statementEdite.setDouble(4, newCaloriesBurned);
 
-            statementDelete.setLong(5, idOfTrainingForEdite);
+            statementEdite.setLong(5, idOfTrainingForEdite);
 
-            statementDelete.executeUpdate();
+            statementEdite.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         }
@@ -165,22 +169,38 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
 
     @Override
     public void delete(long id) {
-        try (var connection = connectionManager.open();
-             var statementDelete =
-                     connection.prepareStatement(DELETE_SQL);
-             var statementDeleteAdditionalInformation =
-                     connection.prepareStatement(DELETE_ADDITIONAL_INFORMATION_SQL)) {
+        try (var connection = connectionManager.open()) {
             connection.setAutoCommit(false);
+            try {
+                try (var statementDeleteAdditionalInformation =
+                             connection.prepareStatement(DELETE_ADDITIONAL_INFORMATION_SQL)) {
+                    statementDeleteAdditionalInformation.setLong(1, id);
+                    statementDeleteAdditionalInformation.executeUpdate();
+                }
 
-            statementDelete.setLong(1, id);
-            statementDelete.executeUpdate();
+                try (var statementDelete =
+                             connection.prepareStatement(DELETE_SQL)) {
+                    statementDelete.setLong(1, id);
+                    statementDelete.executeUpdate();
+                }
 
-            statementDeleteAdditionalInformation.setLong(1, id);
-            statementDeleteAdditionalInformation.executeUpdate();
-
-            connection.commit();
+                connection.commit();
+            } catch (SQLException e) {
+                try {
+                    connection.rollback();
+                } catch (SQLException rollbackException) {
+                    throw new DaoException("Rollback failed", rollbackException);
+                }
+                throw new DaoException("SQL error occurred", e);
+            } finally {
+                try {
+                    connection.setAutoCommit(true);
+                } catch (SQLException e) {
+                    throw new DaoException("Failed to set autoCommit back to true", e);
+                }
+            }
         } catch (SQLException e) {
-            throw new DaoException(e);
+            throw new DaoException("Failed to open connection", e);
         }
     }
 }

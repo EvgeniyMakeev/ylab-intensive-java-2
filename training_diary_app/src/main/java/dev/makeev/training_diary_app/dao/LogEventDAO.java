@@ -1,7 +1,7 @@
 package dev.makeev.training_diary_app.dao;
 
 import dev.makeev.training_diary_app.exceptions.EmptyException;
-import dev.makeev.training_diary_app.model.UserLogEvent;
+import dev.makeev.training_diary_app.model.LogEvent;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
  * the persistence of UserLogEvent entities. It allows adding new log events
  * and retrieving a list of all log events.
  */
-public interface UserLogEventDAO {
+public interface LogEventDAO {
 
     /**
      * Adds a new UserLogEvent.
@@ -25,7 +25,7 @@ public interface UserLogEventDAO {
      *
      * @return The list of all UserLogEvent entities.
      */
-    List<UserLogEvent> getAllEvents() throws EmptyException;
+    List<LogEvent> getAllEvents() throws EmptyException;
 
-    List<UserLogEvent> getAllEventsForUser(String login) throws EmptyException;
+    List<LogEvent> getAllEventsForUser(String login) throws EmptyException;
 }

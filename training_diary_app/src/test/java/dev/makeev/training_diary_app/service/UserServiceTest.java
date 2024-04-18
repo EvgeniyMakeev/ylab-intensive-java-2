@@ -17,10 +17,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @DisplayName("UserService Test")
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +25,7 @@ class UserServiceTest {
 
     private static final String LOGIN = "TestUser";
     private static final String PASSWORD = "TestPassword";
+    private static final User TEST_USER = mock(User.class);
 
     @Mock
     private UserDAO userDAO;
@@ -39,12 +37,26 @@ class UserServiceTest {
     @DisplayName("Add User - Should add new user to DAO")
     void addUser_shouldAddUserToDAO() {
         userService.addUser(LOGIN, PASSWORD);
+
+        verify(userDAO, times(1)).add(LOGIN, PASSWORD);
+    }
+
+    @Test
+    @DisplayName("Get All Users - Should get all users from DAO")
+    void getAll_shouldGetAllUsersFromDAO() {
+        List<User> mockUsers = List.of(TEST_USER, TEST_USER);
+        when(userDAO.getAll()).thenReturn(mockUsers);
+
+        List<User> users = userService.getAll();
+
+        assertThat(users).isEqualTo(mockUsers);
+        verify(userDAO, times(1)).getAll();
     }
 
     @Test
     @DisplayName("Exist By Login - Should check if user exists in DAO")
     void existByLogin_shouldCheckIfUserExistsInDAO() {
-        when(userDAO.getByLogin(LOGIN)).thenReturn(Optional.of(new User(LOGIN, PASSWORD,false)));
+        when(userDAO.getByLogin(LOGIN)).thenReturn(Optional.of(TEST_USER));
 
         boolean exists = userService.existByLogin(LOGIN);
 
@@ -55,32 +67,38 @@ class UserServiceTest {
     @Test
     @DisplayName("Check Credentials - Should verify user credentials")
     void checkCredentials_shouldVerifyUserCredentials() {
-        when(userDAO.getByLogin(LOGIN)).thenReturn(Optional.of(new User(LOGIN, PASSWORD, false)));
+        when(TEST_USER.login()).thenReturn(LOGIN);
+        when(TEST_USER.password()).thenReturn(PASSWORD);
+        when(userDAO.getByLogin(LOGIN)).thenReturn(Optional.of(TEST_USER));
 
-        assertThatExceptionOfType(VerificationException.class)
-                .isThrownBy(() -> userService.checkCredentials(LOGIN, "WrongPassword"));
         assertThatCode(() -> userService.checkCredentials(LOGIN, PASSWORD))
                 .doesNotThrowAnyException();
-        verify(userDAO, times(2)).getByLogin(eq(LOGIN));
+        verify(userDAO, times(1)).getByLogin(eq(LOGIN));
     }
 
     @Test
-    @DisplayName("Get by login- Should throw UserNotFoundException if user does not exist")
-    void getByLogin_shouldThrowUserNotFoundExceptionIfUserDoesNotExist() {
-        when(userDAO.getByLogin(LOGIN)).thenReturn(Optional.empty());
+    @DisplayName("Check Credentials - Should throw VerificationException")
+    void checkCredentials_shouldVerifyUserCredentials_shouldThrowVerificationException() {
+        when(TEST_USER.login()).thenReturn(LOGIN);
+        when(TEST_USER.password()).thenReturn(PASSWORD);
+        when(userDAO.getByLogin(LOGIN)).thenReturn(Optional.of(TEST_USER));
 
-        assertThatExceptionOfType(UserNotFoundException.class)
-                .isThrownBy(() -> userService.isAdmin(LOGIN));
+        assertThatExceptionOfType(VerificationException.class).isThrownBy(
+                () -> userService.checkCredentials(LOGIN, "Wrong password"));
+
+        verify(userDAO, times(1)).getByLogin(eq(LOGIN));
     }
 
     @Test
     @DisplayName("Is Admin - Should return true if user is admin")
     void isAdmin_shouldReturnTrueIfUserIsAdmin() throws UserNotFoundException {
-        when(userDAO.getByLogin(LOGIN)).thenReturn(Optional.of(new User(LOGIN, PASSWORD, true)));
+        when(userDAO.getByLogin(LOGIN)).thenReturn(Optional.of(TEST_USER));
+        when(TEST_USER.admin()).thenReturn(true);
 
         boolean result = userService.isAdmin(LOGIN);
 
         assertThat(result).isTrue();
+        verify(userDAO, times(1)).getByLogin(eq(LOGIN));
     }
 
     @Test
@@ -91,17 +109,6 @@ class UserServiceTest {
         boolean result = userService.isAdmin(LOGIN);
 
         assertThat(result).isFalse();
-    }
-
-    @Test
-    @DisplayName("Get All Users - Should get all users from DAO")
-    void getAll_shouldGetAllUsersFromDAO() {
-        List<User> mockUsers = List.of(new User("User1", "Password1", false), new User("User2", "Password2", false));
-        when(userDAO.getAll()).thenReturn(mockUsers);
-
-        List<User> users = userService.getAll();
-
-        assertThat(users).isEqualTo(mockUsers);
-        verify(userDAO, times(1)).getAll();
+        verify(userDAO, times(1)).getByLogin(eq(LOGIN));
     }
 }

@@ -1,10 +1,10 @@
 package dev.makeev.training_diary_app.service;
 
-import dev.makeev.training_diary_app.dao.UserLogEventDAO;
+import dev.makeev.training_diary_app.dao.LogEventDAO;
 import dev.makeev.training_diary_app.dao.impl.TrainingOfUserDAOImpl;
 import dev.makeev.training_diary_app.dao.impl.TypeOfTrainingDAOImpl;
 import dev.makeev.training_diary_app.dao.impl.UserDAOImpl;
-import dev.makeev.training_diary_app.dao.impl.UserLogEventDAOImpl;
+import dev.makeev.training_diary_app.dao.impl.LogEventDAOImpl;
 import dev.makeev.training_diary_app.exceptions.EmptyException;
 import dev.makeev.training_diary_app.exceptions.LoginAlreadyExistsException;
 import dev.makeev.training_diary_app.exceptions.NotAdminException;
@@ -30,7 +30,7 @@ public class AppUI {
     private final ConnectionManager connectionManager = new ConnectionManagerImpl();
     private final InitDB initDB = new InitDB(connectionManager);
     private final UserService userService = new UserService(new UserDAOImpl(connectionManager));
-    private final UserLogEventDAO userLogEventDAO = new UserLogEventDAOImpl(connectionManager);
+    private final LogEventDAO logEventDAO = new LogEventDAOImpl(connectionManager);
 
     private final TrainingsService trainingsService =
             new TrainingsService(new TrainingOfUserDAOImpl(connectionManager),
@@ -101,7 +101,7 @@ public class AppUI {
                     userService.checkCredentials(login, input.getString());
                     console.print("Access is allowed!");
                     loginOfCurrentUser = login;
-                    userLogEventDAO.addEvent(loginOfCurrentUser,
+                    logEventDAO.addEvent(loginOfCurrentUser,
                             "Login.");
                     break;
                 } catch (VerificationException e) {
@@ -113,7 +113,7 @@ public class AppUI {
                         userService.addUser(login, input.getString());
                         console.print("Account was created!");
                         loginOfCurrentUser = login;
-                        userLogEventDAO.addEvent(loginOfCurrentUser,
+                        logEventDAO.addEvent(loginOfCurrentUser,
                                 "Account was created and login.");
                         break;
                     } else {
@@ -203,7 +203,7 @@ public class AppUI {
                 typeOfTraining = input.getString();
                 trainingsService.addTypeOfTraining(typeOfTraining);
                 console.print("A new type of training was added.");
-                userLogEventDAO.addEvent(loginOfCurrentUser,
+                logEventDAO.addEvent(loginOfCurrentUser,
                         "Add a new type of training.");
             }
         }
@@ -221,7 +221,7 @@ public class AppUI {
             if (!showEditMenu) {
                 trainingsService.addTrainingOfUser(loginOfCurrentUser, typeOfTraining, date, duration, caloriesBurned);
                 console.addSuccessful();
-                userLogEventDAO.addEvent(loginOfCurrentUser,
+                logEventDAO.addEvent(loginOfCurrentUser,
                         "Added new training.");
             } else {
                 long idOfTrainingForEdite =
@@ -250,13 +250,13 @@ public class AppUI {
             int trainingsListSize = trainingsOfUserList.size();
             console.printTrainingsForUser(trainingsOfUserList);
             userOption = -1;
-            userLogEventDAO.addEvent(loginOfCurrentUser,
+            logEventDAO.addEvent(loginOfCurrentUser,
                     "Trainings history was viewed.");
 
             if (showEditMenu) {
                 if (trainingsOfUserList.isEmpty()) {
                     showEditMenu = false;
-                    userLogEventDAO.addEvent(loginOfCurrentUser,
+                    logEventDAO.addEvent(loginOfCurrentUser,
                             "Trying edit training.");
                     throw new EmptyException();
                 } else {
@@ -288,7 +288,7 @@ public class AppUI {
                     }
 
                     console.editSuccessful();
-                    userLogEventDAO.addEvent(loginOfCurrentUser,
+                    logEventDAO.addEvent(loginOfCurrentUser,
                             "Edit training.");
                     showEditMenu = false;
                 }
@@ -297,7 +297,7 @@ public class AppUI {
             if (showDeleteMenu) {
                 if (trainingsOfUserList.isEmpty()) {
                     showDeleteMenu = false;
-                    userLogEventDAO.addEvent(loginOfCurrentUser,
+                    logEventDAO.addEvent(loginOfCurrentUser,
                             "Trying delete training.");
                     throw new EmptyException();
                 } else {
@@ -306,7 +306,7 @@ public class AppUI {
                     long idOfTrainingForDelete = trainingsOfUserList.get(indexForDelete).training().id();
                     trainingsService.delete(idOfTrainingForDelete);
                     console.deleteSuccessful();
-                    userLogEventDAO.addEvent(loginOfCurrentUser,
+                    logEventDAO.addEvent(loginOfCurrentUser,
                             "Delete training.");
                     showDeleteMenu = false;
                 }
@@ -354,7 +354,7 @@ public class AppUI {
                                 loginOfCurrentUser, typeOfTrainingId);
                 Statistic statistic = trainingsService.getStatistic(trainingsOfUserList, userOption);
                 console.printStatistic(statistic, userOption);
-                userLogEventDAO.addEvent(loginOfCurrentUser,
+                logEventDAO.addEvent(loginOfCurrentUser,
                         "Viewed training statistics for " + typeOfTraining + ".");
             } catch (EmptyException e) {
                 console.print(e.getMessage());
@@ -366,7 +366,7 @@ public class AppUI {
                         trainingsService.getAllTrainingsForUser(loginOfCurrentUser);
                 Statistic statistic = trainingsService.getStatistic(trainingsOfUserList, userOption);
                 console.printStatistic(statistic, userOption);
-                userLogEventDAO.addEvent(loginOfCurrentUser,
+                logEventDAO.addEvent(loginOfCurrentUser,
                         "Viewed training statistics for all types of trainings.");
             } catch (EmptyException e) {
                 console.print(e.getMessage());
@@ -379,11 +379,11 @@ public class AppUI {
             if (userService.isAdmin(loginOfCurrentUser)) {
                 showAdminMenu = true;
                 userOption = -1;
-                userLogEventDAO.addEvent(loginOfCurrentUser,
+                logEventDAO.addEvent(loginOfCurrentUser,
                         "Enter in admin option.");
             } else {
                 userOption = -1;
-                userLogEventDAO.addEvent(loginOfCurrentUser,
+                logEventDAO.addEvent(loginOfCurrentUser,
                         "Tried to entered in admin option.");
                 throw new NotAdminException();
             }
@@ -406,18 +406,18 @@ public class AppUI {
                         showLogForUser = true;
                 case 4 -> { //if "Show log" was selected
                     try {
-                        console.printUserEvents(userLogEventDAO.getAllEvents(),
+                        console.printUserEvents(logEventDAO.getAllEvents(),
                                 "Log for all users:\n");
                     } catch (EmptyException e) {
                         console.print(e.getMessage());
                     }
-                    userLogEventDAO.addEvent(loginOfCurrentUser,
+                    logEventDAO.addEvent(loginOfCurrentUser,
                             "Log was viewed.");
                 }
                 case 5 -> { //if "Back to User menu" was selected
                     userOption = -1;
                     showAdminMenu = false;
-                    userLogEventDAO.addEvent(loginOfCurrentUser,
+                    logEventDAO.addEvent(loginOfCurrentUser,
                             "Exit from admin options.");
                 }
                 case 0 ->  //if "Exit" was selected
@@ -451,7 +451,7 @@ public class AppUI {
                 }
                 console.printTrainings(trainingOfUserList);
             }
-            userLogEventDAO.addEvent(loginOfCurrentUser,
+            logEventDAO.addEvent(loginOfCurrentUser,
                     "History of trainings for all users was viewed.");
         userOption = -1;
     }
@@ -463,18 +463,18 @@ public class AppUI {
             if (userService.existByLogin(login)) {
                 console.printTrainingsForUser(
                         trainingsService.getAllTrainingsForUser(login));
-                userLogEventDAO.addEvent(loginOfCurrentUser,
+                logEventDAO.addEvent(loginOfCurrentUser,
                         "Training history for user was viewed.");
             } else {
                 throw new UserNotFoundException();
             }
         } catch (UserNotFoundException e) {
             console.print(e.getMessage());
-            userLogEventDAO.addEvent(loginOfCurrentUser,
+            logEventDAO.addEvent(loginOfCurrentUser,
                     "Tried to view a training history for user.");
         } catch (EmptyException e) {
             console.print(e.getMessage());
-            userLogEventDAO.addEvent(loginOfCurrentUser,
+            logEventDAO.addEvent(loginOfCurrentUser,
                     "Tried to view a training history for user.");
         }
 
@@ -487,16 +487,16 @@ public class AppUI {
         String login = input.getString();
         try {
             if (userService.existByLogin(login)) {
-                console.printUserEvents(userLogEventDAO.getAllEventsForUser(login),
+                console.printUserEvents(logEventDAO.getAllEventsForUser(login),
                         "Log for " + login + ":\n");
-                userLogEventDAO.addEvent(loginOfCurrentUser,
+                logEventDAO.addEvent(loginOfCurrentUser,
                         "Log for " + login + " was viewed.");
             } else {
                 throw new UserNotFoundException();
             }
         } catch (UserNotFoundException e) {
             console.print(e.getMessage());
-            userLogEventDAO.addEvent(loginOfCurrentUser,
+            logEventDAO.addEvent(loginOfCurrentUser,
                     "Tried to view a log for user.");
         } catch (EmptyException e) {
             throw new RuntimeException(e);
@@ -508,7 +508,7 @@ public class AppUI {
 
 
     private void logOut() {
-        userLogEventDAO.addEvent(loginOfCurrentUser,
+        logEventDAO.addEvent(loginOfCurrentUser,
                 "Logout.");
         loginOfCurrentUser = null;
         showAuthorizationMenu = true;

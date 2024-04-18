@@ -4,9 +4,9 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd"
-        logicalFilePath="db/changelog/changelog.xml">
+        logicalFilePath="db/changelog/Test_changelog.xml">
 
-    <changeSet id="005-insert-data" author="evgeniy_makeev">
+    <changeSet id="Test_005-insert-data" author="evgeniy_makeev">
         <insert tableName="trainings" schemaName="non_public">
             <column name="user_login" value="DemoUser"/>
             <column name="type_of_training_id" value="1"/>

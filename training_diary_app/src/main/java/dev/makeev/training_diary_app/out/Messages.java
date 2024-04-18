@@ -182,14 +182,14 @@ public class Messages {
         console.output(result.toString());
     }
 
-    public void printUserEvents(List<UserLogEvent> listOfUserEvent, String message) {
+    public void printUserEvents(List<LogEvent> listOfUserEvent, String message) {
         StringBuilder result = new StringBuilder(message);
-        for (UserLogEvent userLogEvent : listOfUserEvent) {
-            result.append(userLogEvent.date())
+        for (LogEvent logEvent : listOfUserEvent) {
+            result.append(logEvent.date())
                     .append(" | ")
-                    .append(userLogEvent.login())
+                    .append(logEvent.login())
                     .append(" | ")
-                    .append(userLogEvent.message())
+                    .append(logEvent.message())
                     .append("\n");
         }
         console.output(result.toString());

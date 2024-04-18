@@ -1,5 +1,6 @@
 package dev.makeev.training_diary_app.utils;
 
+import dev.makeev.training_diary_app.exceptions.DaoException;
 import liquibase.Liquibase;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
@@ -17,6 +18,14 @@ public class InitDB {
     }
 
     public void initDB() {
+        try (var connection = connectionManager.open()) {
+            String sql = "CREATE SCHEMA IF NOT EXISTS non_public";
+            var statement = connection.createStatement();
+            statement.executeUpdate(sql);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+
         try (var connection = connectionManager.open()) {
             var database = DatabaseFactory.getInstance()
                     .findCorrectDatabaseImplementation(new JdbcConnection(connection));

@@ -30,6 +30,10 @@ public class UserService {
         userDAO.add(login, password);
     }
 
+    public List<User> getAll() {
+        return userDAO.getAll();
+    }
+
     public boolean existByLogin(String login) {
         return userDAO.getByLogin(login).isPresent();
     }
@@ -57,9 +61,4 @@ public class UserService {
     public boolean isAdmin(String login) throws UserNotFoundException {
         return userDAO.getByLogin(login).orElseThrow(UserNotFoundException::new).admin();
     }
-
-    public List<User> getAll() {
-        return userDAO.getAll();
-    }
-
 }

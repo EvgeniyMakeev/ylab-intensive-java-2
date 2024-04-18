@@ -41,7 +41,11 @@ public interface TrainingOfUserDAO {
 
     Map<String, Double> getAdditionalInformation(long id) throws EmptyException;
 
-    void edit(long idOfTrainingForEdite, Training newTraining);
+    void edit(long idOfTrainingForEdite,
+              long newTypeOfTrainingId,
+              LocalDate newDate,
+              Double newDuration,
+              Double newCaloriesBurned);
 
     void delete(long id);
 }

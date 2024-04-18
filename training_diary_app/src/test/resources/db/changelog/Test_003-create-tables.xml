@@ -4,9 +4,9 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd"
-        logicalFilePath="db/changelog/003-create-tables.xml">
+        logicalFilePath="db/changelog/Test_003-create-tables.xml">
 
-    <changeSet id="003-create-table" author="evgeniy_makeev">
+    <changeSet id="Test_003-create-table" author="evgeniy_makeev">
         <createTable tableName="users" schemaName="non_public">
             <column name="login" type="VARCHAR(255)">
                 <constraints primaryKey="true" nullable="false" unique="true"/>

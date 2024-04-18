@@ -4,11 +4,11 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd"
-        logicalFilePath="db/changelog/changelog.xml">
+        logicalFilePath="db/changelog/Test_changelog.xml">
 
-    <changeSet id="001-create-schemes" author="evgeniy_makeev">
+    <changeSet id="Test_001-create-schemes" author="evgeniy_makeev">
         <sql>
-            CREATE SCHEMA IF NOT EXISTS non_public;
+            CREATE SCHEMA non_public;
         </sql>
     </changeSet>
 </databaseChangeLog>

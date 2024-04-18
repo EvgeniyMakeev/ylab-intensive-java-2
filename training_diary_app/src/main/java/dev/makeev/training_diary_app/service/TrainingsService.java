@@ -93,21 +93,6 @@ public class TrainingsService {
         trainingList.sort(Comparator.comparing(Training::date));
         return getTrainingOfUsers(login, trainingList);
     }
-    public void delete(long id) {
-        trainingOfUserDAO.delete(id);
-    }
-
-    /**
-     * Edits additional information of a training.
-     *
-     * @param info the additional information.
-     * @param value the value to set.
-     */
-    public void editAdditionalInfo(long idOfTrainingForEdite, String info, Double value) throws EmptyException {
-        Map<String, Double> additionalInformation = trainingOfUserDAO.getAdditionalInformation(idOfTrainingForEdite);
-        additionalInformation.put(info, value);
-        trainingOfUserDAO.addAdditionalInformation(idOfTrainingForEdite, additionalInformation);
-    }
 
     /**
      * Retrieves all trainings for a user by the type of training.
@@ -137,6 +122,22 @@ public class TrainingsService {
         return trainingOfUserList;
     }
 
+    public void delete(long id) {
+        trainingOfUserDAO.delete(id);
+    }
+
+    /**
+     * Edits additional information of a training.
+     *
+     * @param info the additional information.
+     * @param value the value to set.
+     */
+    public void editAdditionalInfo(long idOfTrainingForEdite, String info, Double value) throws EmptyException {
+        Map<String, Double> additionalInformation = trainingOfUserDAO.getAdditionalInformation(idOfTrainingForEdite);
+        additionalInformation.put(info, value);
+        trainingOfUserDAO.addAdditionalInformation(idOfTrainingForEdite, additionalInformation);
+    }
+
     /**
      * Edits a training.
      *
@@ -153,7 +154,11 @@ public class TrainingsService {
                 throw new TrainingOnDateAlreadyExistsException();
             }
         }
-        trainingOfUserDAO.edit(idOfTrainingForEdite, newTrainingOfUser.training());
+        trainingOfUserDAO.edit(
+                idOfTrainingForEdite, newTrainingOfUser.training().typeOfTrainingId(),
+                newTrainingOfUser.training().date(),
+                newTrainingOfUser.training().duration(),
+                newTrainingOfUser.training().caloriesBurned());
     }
 
     /**
