@@ -4,6 +4,8 @@ import dev.makeev.training_diary_app.service.AppUI;
 
 public class App {
     public static void main(String[] args) {
-        new AppUI().start();
+        AppUI application = new AppUI();
+        application.loadDB();
+        application.start();
     }
 }

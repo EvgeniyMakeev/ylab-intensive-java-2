@@ -1,10 +1,7 @@
 package dev.makeev.training_diary_app.out;
 
 
-import dev.makeev.training_diary_app.model.Statistic;
-import dev.makeev.training_diary_app.model.Training;
-import dev.makeev.training_diary_app.model.TypeOfTraining;
-import dev.makeev.training_diary_app.model.UserLogEvent;
+import dev.makeev.training_diary_app.model.*;
 
 import java.util.List;
 
@@ -85,11 +82,14 @@ public class Messages {
         console.output("Write the type of training: ");
     }
 
-    public void getTypesOfTraining(List<TypeOfTraining> listOfTrainings) {
+    public void showTypesOfTraining(List<TypeOfTraining> listOfTrainings) {
         StringBuilder stringBuilder = new StringBuilder();
         int n = 1;
         for (TypeOfTraining type : listOfTrainings) {
-            stringBuilder.append(n).append(". ").append(type.type()).append("\n");
+            stringBuilder.append(n)
+                    .append(". ")
+                    .append(type.type())
+                    .append("\n");
             n++;
         }
         console.output(stringBuilder.toString());
@@ -128,64 +128,54 @@ public class Messages {
         console.output(s);
     }
 
-    public void printTrainingsForUser(List<Training> listOfTrainings, String login) {
+    public void printTrainingsForUser(List<TrainingOfUser> trainingsOfUserList) {
+        String login = trainingsOfUserList.get(0).login();
         StringBuilder result = new StringBuilder("All trainings of " + login + ":\n");
-        for (int i = 0; i < listOfTrainings.size(); i++) {
-            Training training =  listOfTrainings.get(i);
+        for (int i = 0; i < trainingsOfUserList.size(); i++) {
+            Training training =  trainingsOfUserList.get(i).training();
                 result.append(i + 1)
                         .append(" | ")
-                        .append(training.date().getYear())
-                        .append(" - ")
-                        .append(training.date().getMonth())
-                        .append(" - ")
-                        .append(training.date().getDayOfMonth())
+                        .append(training.date())
                         .append(" | ")
-                        .append(training.type().type())
+                        .append(trainingsOfUserList.get(i).typeOfTraining())
                         .append(" | ")
                         .append("Duration: ")
                         .append(training.duration())
                         .append(" | ")
                         .append("Calories are Burned: ")
                         .append(training.caloriesBurned());
-                if (!training.additionalInfo().isEmpty()) {
-                    training.additionalInfo().forEach((key, value) -> {
-                        result.append(" | ")
-                                .append(key)
-                                .append(": ")
-                                .append(value);
-                    });
+                if (!trainingsOfUserList.get(i).additionalInformation().isEmpty()) {
+                    trainingsOfUserList.get(i).additionalInformation()
+                            .forEach((key, value) -> result.append(" | ")
+                                    .append(key)
+                                    .append(": ")
+                                    .append(value));
                 }
                 result.append("\n");
         }
         console.output(result.toString());
     }
 
-    public void printTrainings(
-            List<Training> listOfTrainings, String login) {
+    public void printTrainings(List<TrainingOfUser> trainingOfUserList) {
         StringBuilder result = new StringBuilder();
-        for (Training training: listOfTrainings) {
-            result.append(login)
+        for (TrainingOfUser trainingOfUser : trainingOfUserList) {
+            result.append(trainingOfUser.login())
                     .append(" | ")
-                    .append(training.date().getYear())
-                    .append(" - ")
-                    .append(training.date().getMonth())
-                    .append(" - ")
-                    .append(training.date().getDayOfMonth())
+                    .append(trainingOfUser.training().date())
                     .append(" | ")
-                    .append(training.type().type())
+                    .append(trainingOfUser.typeOfTraining())
                     .append(" | ")
                     .append("Duration: ")
-                    .append(training.duration())
+                    .append(trainingOfUser.training().duration())
                     .append(" | ")
                     .append("Calories are Burned: ")
-                    .append(training.caloriesBurned());
-            if (!training.additionalInfo().isEmpty()) {
-                training.additionalInfo().forEach((key, value) -> {
-                    result.append(" | ")
-                            .append(key)
-                            .append(": ")
-                            .append(value);
-                });
+                    .append(trainingOfUser.training().caloriesBurned());
+            if (!trainingOfUser.additionalInformation().isEmpty()) {
+                trainingOfUser.additionalInformation()
+                        .forEach((key, value) -> result.append(" | ")
+                                .append(key)
+                                .append(": ")
+                                .append(value));
             }
             result.append("\n");
         }

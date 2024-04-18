@@ -7,11 +7,11 @@ import dev.makeev.training_diary_app.exceptions.TrainingOnDateAlreadyExistsExcep
 import dev.makeev.training_diary_app.exceptions.UserNotFoundException;
 import dev.makeev.training_diary_app.model.Statistic;
 import dev.makeev.training_diary_app.model.Training;
+import dev.makeev.training_diary_app.model.TrainingOfUser;
 import dev.makeev.training_diary_app.model.TypeOfTraining;
 
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * {@code TrainingsService} is a service class that provides methods to interact
@@ -46,12 +46,12 @@ public class TrainingsService {
     /**
      * Retrieves the type of training by its index.
      *
-     * @param index the index of the type of training to retrieve.
+     * @param id the id of the type of training to retrieve.
      * @return the type of training with the specified index.
      * @throws EmptyException if no type of training is found.
      */
-    public String getTypeOfTrainingByIndex(int index) throws EmptyException {
-        return typeOfTrainingDAO.getByIndex(index).orElseThrow(EmptyException::new).type();
+    public TypeOfTraining getTypeOfTrainingById(long id) throws EmptyException {
+        return typeOfTrainingDAO.getById(id).orElseThrow(EmptyException::new);
     }
 
     /**
@@ -66,24 +66,19 @@ public class TrainingsService {
     /**
      * Adds a new training for a user.
      *
-     * @param login the login of the user.
-     * @param typeOfTraining the type of training.
-     * @param date the date of the training.
-     * @param duration the duration of the training.
-     * @param caloriesBurned the calories burned during the training.
      * @throws EmptyException if no type of training is found.
      * @throws UserNotFoundException if the user is not found.
      * @throws TrainingOnDateAlreadyExistsException if a training already exists on the given date.
      */
-    public void addTrainingOfUser(
-            String login, String typeOfTraining, LocalDate date, double duration, double caloriesBurned)
+    public void addTrainingOfUser(String login, String typeOfTraining,
+                                  LocalDate date, Double duration, Double caloriesBurned)
             throws EmptyException, UserNotFoundException, TrainingOnDateAlreadyExistsException {
-
-        if (trainingOfUserDAO.getByLogin(login).stream().anyMatch(training -> training.date().isEqual(date))) {
+        TypeOfTraining type = typeOfTrainingDAO.getByType(typeOfTraining).orElseThrow(EmptyException::new);
+        if (trainingOfUserDAO.getByLogin(login).stream()
+                .anyMatch(training -> training.date().isEqual(date))) {
             throw new TrainingOnDateAlreadyExistsException();
         } else {
-            TypeOfTraining type = typeOfTrainingDAO.getByType(typeOfTraining);
-            trainingOfUserDAO.add(login, type, date, duration, caloriesBurned);
+            trainingOfUserDAO.add(login, type.id(), date, duration, caloriesBurned);
         }
     }
 
@@ -93,105 +88,101 @@ public class TrainingsService {
      * @param login the login of the user.
      * @return a list of all trainings for the user.
      */
-    public List<Training> getAllTrainingsForUser(String login) {
+    public List<TrainingOfUser> getAllTrainingsForUser(String login) throws EmptyException {
         List<Training> trainingList = trainingOfUserDAO.getByLogin(login);
         trainingList.sort(Comparator.comparing(Training::date));
-        return trainingList;
+        return getTrainingOfUsers(login, trainingList);
     }
 
-    /**
-     * Retrieves all trainings.
-     *
-     * @return a list of all trainings.
-     */
-    public List<Training> getAll() {
-        List<Training> trainingList = trainingOfUserDAO.getAll();
-        trainingList.sort(Comparator.comparing(Training::date));
-        return trainingList;
+    public Map<String, List<Training>> getAll() throws EmptyException {
+        return trainingOfUserDAO.getAll();
     }
 
     /**
      * Edits a training.
      *
-     * @param index the index of the training to edit.
-     * @param login the login of the user.
-     * @param typeOfTraining the type of training.
-     * @param date the date of the training.
-     * @param duration the duration of the training.
-     * @param caloriesBurned the calories burned during the training.
      * @throws TrainingOnDateAlreadyExistsException if a training already exists on the given date.
      * @throws EmptyException if no type of training is found.
      */
-    public void edite(int index, String login, String typeOfTraining, LocalDate date, double duration, double caloriesBurned)
+    public void edite(long idOfTrainingForEdite, TrainingOfUser newTrainingOfUser)
             throws TrainingOnDateAlreadyExistsException, EmptyException {
-
+        String login = newTrainingOfUser.login();
         List<Training> trainingList = trainingOfUserDAO.getByLogin(login);
-
-        for (int i = 0; i < trainingList.size(); i++) {
-            if (i != index - 1 && trainingList.get(i).date().isEqual(date)) {
+        LocalDate newDate = newTrainingOfUser.training().date();
+        for (Training training : trainingList) {
+            if (training.id() != idOfTrainingForEdite && training.date().isEqual(newDate)) {
                 throw new TrainingOnDateAlreadyExistsException();
             }
         }
-        TypeOfTraining type = typeOfTrainingDAO.getByType(typeOfTraining);
-        trainingOfUserDAO.edit(index - 1, login, type, date, duration,caloriesBurned);
+        trainingOfUserDAO.edit(idOfTrainingForEdite, newTrainingOfUser.training());
     }
 
-    /**
-     * Deletes a training.
-     *
-     * @param index the index of the training to delete.
-     * @param login the login of the user.
-     */
-    public void delete(int index, String login) {
-        trainingOfUserDAO.delete(index - 1, login);
+
+    public void delete(long id) {
+        trainingOfUserDAO.delete(id);
     }
 
     /**
      * Edits additional information of a training.
      *
-     * @param training the training to edit.
      * @param info the additional information.
      * @param value the value to set.
      */
-    public void editAdditionalInfo(Training training, String info, Double value) {
-        training.additionalInfo().put(info, value);
+    public void editAdditionalInfo(long idOfTrainingForEdite, String info, Double value) throws EmptyException {
+        Map<String, Double> additionalInformation = trainingOfUserDAO.getAdditionalInformation(idOfTrainingForEdite);
+        additionalInformation.put(info, value);
+        trainingOfUserDAO.addAdditionalInformation(idOfTrainingForEdite, additionalInformation);
     }
 
     /**
      * Retrieves all trainings for a user by the type of training.
      *
      * @param login the login of the user.
-     * @param typeOfTraining the type of training.
+     * @param typeOfTrainingId the type of training id.
      * @return a list of all trainings for the user by the type of training.
      */
-    public List<Training> getAllTrainingsForUserByTypeOfTraining(String login, String typeOfTraining) {
-        return trainingOfUserDAO.getByLogin(login).stream()
-                .filter(training -> training.type().type().equals(typeOfTraining))
-                .toList();
+    public List<TrainingOfUser> getAllTrainingsForUserByTypeOfTraining(String login, long typeOfTrainingId) throws EmptyException {
+        List<Training> trainingList = trainingOfUserDAO.getAllTrainingsForUserByTypeOfTraining(login, typeOfTrainingId);
+        trainingList.sort(Comparator.comparing(Training::date));
+        return getTrainingOfUsers(login, trainingList);
+    }
+
+    private List<TrainingOfUser> getTrainingOfUsers(String login, List<Training> trainingList) throws EmptyException {
+        List<TrainingOfUser> trainingOfUserList = new ArrayList<>();
+        for (Training training : trainingList) {
+            TypeOfTraining typeOfTraining =
+                    typeOfTrainingDAO.getById(training.typeOfTrainingId())
+                            .orElseThrow(EmptyException::new);
+            Map<String, Double> additionalInformation =
+                    trainingOfUserDAO.getAdditionalInformation(training.id());
+            trainingOfUserList.add(
+                    new TrainingOfUser(
+                            login, typeOfTraining.type(), training, additionalInformation));
+        }
+        return trainingOfUserList;
     }
 
     /**
      * Calculates the statistics for a list of trainings based on the user opinion.
      *
-     * @param trainingList the list of trainings.
      * @param userOpinion the user's opinion.
      * @return the calculated statistics.
      */
-    public Statistic getStatistic(List<Training> trainingList, int userOpinion) {
-        List<Training> sortedList = trainingList.stream()
-                .sorted(Comparator.comparing(Training::date))
-                .toList();
-        LocalDate from = sortedList.get(0).date();
-        LocalDate to = sortedList.get(sortedList.size() - 1).date();
+    public Statistic getStatistic(List<TrainingOfUser> trainingOfUserList, int userOpinion) {
+        List<Training> trainingList = new ArrayList<>();
 
-        int numbersOfTraining = trainingList.size();
+        LocalDate from = trainingOfUserList.get(0).training().date();
+        LocalDate to = trainingOfUserList.get(trainingOfUserList.size() - 1).training().date();
 
-        Double maxValue = Double.MIN_VALUE;
-        Double minValue = Double.MAX_VALUE;
-        Double totalValue = 0.0;
-        Double averageValue = totalValue / numbersOfTraining;
+        int numbersOfTraining = trainingOfUserList.size();
 
-        for (Training training : trainingList) {
+        double maxValue = Double.MIN_VALUE;
+        double minValue = Double.MAX_VALUE;
+        double totalValue = 0.0;
+
+        for (TrainingOfUser trainingOfUser : trainingOfUserList) {
+            Training training = trainingOfUser.training();
+            trainingList.add(training);
             double currentValue = 0.0;
 
             switch (userOpinion) {
@@ -200,15 +191,16 @@ public class TrainingsService {
             }
 
             if(currentValue > maxValue) {
-                maxValue = training.duration();
+                maxValue = currentValue;
             }
 
             if(currentValue < minValue) {
-                minValue = training.duration();
+                minValue = currentValue;
             }
 
-            totalValue += training.duration();
+            totalValue += currentValue;
         }
+        Double averageValue = totalValue / numbersOfTraining;
 
         return new Statistic(from, to, minValue, averageValue, maxValue, totalValue, trainingList);
     }

@@ -1,8 +1,8 @@
 package dev.makeev.training_diary_app.dao;
 
+import dev.makeev.training_diary_app.exceptions.EmptyException;
 import dev.makeev.training_diary_app.model.UserLogEvent;
 
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -15,16 +15,17 @@ public interface UserLogEventDAO {
     /**
      * Adds a new UserLogEvent.
      *
-     * @param date    The date of the log event.
      * @param login   The login associated with the log event.
      * @param message The message or description of the log event.
      */
-    void add(LocalDate date, String login, String message);
+    void addEvent(String login, String message);
 
     /**
      * Retrieves a list of all UserLogEvent entities.
      *
      * @return The list of all UserLogEvent entities.
      */
-    List<UserLogEvent> getAll();
+    List<UserLogEvent> getAllEvents() throws EmptyException;
+
+    List<UserLogEvent> getAllEventsForUser(String login) throws EmptyException;
 }

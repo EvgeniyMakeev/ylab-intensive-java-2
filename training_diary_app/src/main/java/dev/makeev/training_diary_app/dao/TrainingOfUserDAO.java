@@ -1,10 +1,11 @@
 package dev.makeev.training_diary_app.dao;
 
+import dev.makeev.training_diary_app.exceptions.EmptyException;
 import dev.makeev.training_diary_app.model.Training;
-import dev.makeev.training_diary_app.model.TypeOfTraining;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The {@code TrainingOfUserDAO} interface provides methods for managing the persistence
@@ -17,13 +18,13 @@ public interface TrainingOfUserDAO {
     /**
      * Adds a new training record for a user.
      *
-     * @param login          The login of the user to add the training record to.
-     * @param type           The type of the training.
-     * @param localDate      The date of the training.
-     * @param duration       The duration of the training in minutes.
-     * @param caloriesBurned The number of calories burned during the training.
+     * @param login             The login of the user to add the training record to.
+     * @param typeOfTrainingId  The type of the training.
+     * @param date              The date of the training.
+     * @param duration          The duration of the training in minutes.
+     * @param caloriesBurned    The number of calories burned during the training.
      */
-    void add(String login, TypeOfTraining type, LocalDate localDate,
+    void add(String login, long typeOfTrainingId, LocalDate date,
              double duration, double caloriesBurned);
 
     /**
@@ -32,33 +33,22 @@ public interface TrainingOfUserDAO {
      * @param login The login of the user to retrieve the training records for.
      * @return A list of all training records associated with the user.
      */
-    List<Training> getByLogin(String login);
+    List<Training> getByLogin(String login) throws EmptyException;
 
     /**
      * Retrieves all training records from the DAO.
      *
      * @return A list of all training records.
      */
-    List<Training> getAll();
+    Map<String, List<Training>> getAll() throws EmptyException;
 
-    /**
-     * Edits an existing training record.
-     *
-     * @param index          The index of the training record to edit.
-     * @param login          The login of the user associated with the training record.
-     * @param type           The new type of the training.
-     * @param localDate      The new date of the training.
-     * @param duration       The new duration of the training in minutes.
-     * @param caloriesBurned The new number of calories burned during the training.
-     */
-    void edit(int index, String login, TypeOfTraining type, LocalDate localDate,
-              double duration, double caloriesBurned);
+    void edit(long idOfTrainingForEdite, Training newTraining);
 
-    /**
-     * Deletes a training record.
-     *
-     * @param index The index of the training record to delete.
-     * @param login The login of the user associated with the training record.
-     */
-    void delete(int index, String login);
+    void delete(long id);
+
+    List<Training> getAllTrainingsForUserByTypeOfTraining(String login, long typeOfTrainingId) throws EmptyException;
+
+    void addAdditionalInformation(long trainingId, Map<String, Double> additionalInformation);
+
+    Map<String, Double> getAdditionalInformation(long id) throws EmptyException;
 }

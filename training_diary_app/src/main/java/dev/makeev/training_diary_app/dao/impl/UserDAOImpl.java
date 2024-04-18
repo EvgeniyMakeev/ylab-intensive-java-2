@@ -1,60 +1,75 @@
 package dev.makeev.training_diary_app.dao.impl;
 
 import dev.makeev.training_diary_app.dao.UserDAO;
+import dev.makeev.training_diary_app.exceptions.DaoException;
 import dev.makeev.training_diary_app.model.User;
+import dev.makeev.training_diary_app.utils.ConnectionManager;
 
-import java.util.HashMap;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-/**
- * The {@code UserDAO} class is responsible for managing the persistence of User entities.
- * It provides methods to retrieve, add, and query User information, as well as handle
- * user-related operations such as login verification and indication submission.
- */
 public class UserDAOImpl implements UserDAO {
 
-    /**
-     * A map storing User entities with login as the key.
-     */
-    private final Map<String, User> mapOfUser;
+    private final static String ADD_SQL =
+            "INSERT INTO non_public.users (login, password, admin) VALUES (?,?,?)";
+    private final static String GET_ALL_SQL = "SELECT * FROM non_public.users";
+    private final static String GET_BY_LOGIN_SQL = GET_ALL_SQL + " WHERE login=?";
 
-    {
-        mapOfUser = new HashMap<>();
-        String loginAdmin = "admin";
-        User admin = new User(loginAdmin, "admin", true);
-        mapOfUser.put(loginAdmin, admin);
+    private final ConnectionManager connectionManager;
 
-        String loginDemoUser = "DemoUser";
-        User demoUser = new User(loginDemoUser, "1234", false);
-        mapOfUser.put(loginDemoUser, demoUser);
+    public UserDAOImpl(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
     }
 
     @Override
     public void add(String login, String password) {
-        User user = new User(login, password, false);
-        mapOfUser.put(user.login(), user);
+        try (var connection = connectionManager.open();
+             var statement = connection.prepareStatement(ADD_SQL)) {
+            statement.setString(1, login);
+            statement.setString(2, password);
+            statement.setBoolean(3, false);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
     }
 
-    /**
-     * Retrieves a User entity by its login.
-     *
-     * @param login The login of the User to retrieve.
-     * @return An {@code Optional} containing the User if found, or empty if not found.
-     */
     @Override
     public Optional<User> getByLogin(String login) {
-        return Optional.ofNullable(mapOfUser.get(login));
+        try (var connection = connectionManager.open();
+             var statement = connection.prepareStatement(GET_BY_LOGIN_SQL)) {
+            statement.setString(1, login);
+            User user = null;
+            var result = statement.executeQuery();
+            if (result.next()) {
+                user = new User(login,
+                        result.getString("password"),
+                        result.getBoolean("admin"));
+            }
+            return Optional.ofNullable(user);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
     }
 
-    /**
-     * Retrieves a list of all User entities.
-     *
-     * @return The list of all User entities.
-     */
     @Override
     public List<User> getAll() {
-        return mapOfUser.values().stream().toList();
+        try (var connection = connectionManager.open();
+             var statement = connection.prepareStatement(GET_ALL_SQL)) {
+            List<User> listOfUsers = new ArrayList<>();
+            var result = statement.executeQuery();
+            while (result.next()) {
+                listOfUsers.add(
+                        new User(result.getString("login"),
+                                result.getString("password"),
+                                result.getBoolean("admin"))
+                );
+            }
+            return listOfUsers;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
     }
 }

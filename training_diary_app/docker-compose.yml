@@ -1,0 +1,19 @@
+version: '3.9'
+
+volumes:
+  postgres_training_diary_db:
+
+
+services:
+  postgres_training_diary_db:
+    container_name: postgres_db_for_training_diary_app
+    image: postgres:16.2
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_USER=user
+      - POSTGRES_DB=training_diary_db
+    volumes:
+      - postgres_training_diary_db:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT:-25432}:5432

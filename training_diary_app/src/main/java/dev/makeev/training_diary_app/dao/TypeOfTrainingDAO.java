@@ -14,22 +14,6 @@ import java.util.Optional;
 public interface TypeOfTrainingDAO {
 
     /**
-     * Retrieves a TypeOfTraining entity by its type.
-     *
-     * @param type The type of the TypeOfTraining entity to retrieve.
-     * @return The TypeOfTraining entity with the specified type.
-     * @throws EmptyException If no TypeOfTraining entity with the specified type is found.
-     */
-    TypeOfTraining getByType(String type) throws EmptyException;
-
-    /**
-     * Retrieves a list of all TypeOfTraining entities.
-     *
-     * @return The list of all TypeOfTraining entities.
-     */
-    List<TypeOfTraining> getAll();
-
-    /**
      * Adds a new TypeOfTraining entity.
      *
      * @param type The type of the new TypeOfTraining entity to add.
@@ -39,10 +23,19 @@ public interface TypeOfTrainingDAO {
     /**
      * Retrieves a TypeOfTraining entity by its index.
      *
-     * @param index The index of the TypeOfTraining entity to retrieve.
+     * @param id The index of the TypeOfTraining entity to retrieve.
      * @return An {@code Optional} containing the TypeOfTraining entity if found,
      *         or empty if not found.
      * @throws EmptyException If no TypeOfTraining entity with the specified index is found.
      */
-    Optional<TypeOfTraining> getByIndex(int index) throws EmptyException;
+    Optional<TypeOfTraining> getById(long id) throws EmptyException;
+
+    /**
+     * Retrieves a list of all TypeOfTraining entities.
+     *
+     * @return The list of all TypeOfTraining entities.
+     */
+    List<TypeOfTraining> getAll();
+
+    Optional<TypeOfTraining> getByType(String typeOfTraining);
 }
