@@ -10,7 +10,7 @@ To run the application, you need to have Java installed on your machine. Follow 
 
    ```bash
    git clone https://github.com/EvgeniyMakeev/ylab-intensive-java-2
-   ```
+
 
 2. Navigate to the project directory:
 
@@ -77,7 +77,7 @@ The project is organized into several packages:
 
 - `service`: Contains the main application code and business logic.
 - `dao`: Contains data access objects.
-- `repository`: Contains repositories.
+- `utils`: Contains utility.
 - `exceptions`: Defines custom exceptions.
 - `in`: Input interfaces and implementations for user input.
 - `model`: Data model classes and records.

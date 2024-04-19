@@ -14,6 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The {@code TrainingOfUserDAOImpl} class implements the {@link TrainingOfUserDAO} interface.
+ * It provides methods to interact with the database to manage Training entities.
+ */
 public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
     private final static String ADD_SQL =
             "INSERT INTO non_public.trainings " +

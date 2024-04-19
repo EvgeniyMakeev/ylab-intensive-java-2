@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The {@code TypeOfTrainingDAOImpl} class implements the {@link TypeOfTrainingDAO} interface.
+ * It provides methods to interact with the database to manage TypeOfTraining entities.
+ */
 public class TypeOfTrainingDAOImpl implements TypeOfTrainingDAO {
 
     private final static String ADD_SQL =

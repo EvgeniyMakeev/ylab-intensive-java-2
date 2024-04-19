@@ -75,6 +75,30 @@ class TrainingsServiceTest {
     }
 
     @Test
+    @DisplayName("Get Type Of Training By Type - Should return type when it exists")
+    public void testGetTypeOfTrainingByType_WhenTypeExists() {
+        when(typeOfTrainingDAO.getByType(TYPE_1)).thenReturn(Optional.of(TYPE_OF_TRAINING_1));
+
+        Optional<TypeOfTraining> result = trainingsService.getTypeOfTrainingByType(TYPE_1);
+
+        assertThat(result).isPresent();
+        assertThat(TYPE_OF_TRAINING_1).isEqualTo(result.get());
+        verify(typeOfTrainingDAO).getByType(TYPE_1);
+    }
+
+    @Test
+    @DisplayName("Get Type Of Training By Type - Should return empty optional when type does not exist")
+    public void testGetTypeOfTrainingByType_WhenTypeDoesNotExist() {
+        String type = "NotExistType";
+        when(typeOfTrainingDAO.getByType(type)).thenReturn(Optional.empty());
+
+        Optional<TypeOfTraining> result = trainingsService.getTypeOfTrainingByType(type);
+
+        assertThat(result).isEmpty();
+        verify(typeOfTrainingDAO).getByType(type);
+    }
+
+    @Test
     @DisplayName("Add Type Of Training - Should call DAO add method with correct parameter")
     void addTypeOfTraining_shouldCallDAOAddMethodWithCorrectParameter() {
         trainingsService.addTypeOfTraining(TYPE_1);
@@ -162,7 +186,7 @@ class TrainingsServiceTest {
         List<Training> mockTrainingList = List.of(TRAINING_1);
         when(trainingOfUserDAO.getByLogin(LOGIN)).thenReturn(mockTrainingList);
 
-        assertThatCode(() -> trainingsService.edite(idOfTrainingForEdit, newTrainingOfUser))
+        assertThatCode(() -> trainingsService.editTraining(idOfTrainingForEdit, newTrainingOfUser))
                 .doesNotThrowAnyException();
 
         verify(trainingOfUserDAO, times(1)).edit(
@@ -216,7 +240,7 @@ class TrainingsServiceTest {
     void delete_shouldDeleteTraining() {
         long trainingId = 1L;
 
-        trainingsService.delete(trainingId);
+        trainingsService.deleteTraining(trainingId);
 
         verify(trainingOfUserDAO, times(1)).delete(trainingId);
     }

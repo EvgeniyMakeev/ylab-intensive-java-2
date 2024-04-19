@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The {@code UserDAOImpl} class implements the {@link UserDAO} interface.
+ * It provides methods to interact with the database to manage User entities.
+ */
 public class UserDAOImpl implements UserDAO {
 
     private final static String ADD_SQL =

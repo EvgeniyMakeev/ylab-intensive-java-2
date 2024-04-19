@@ -2,8 +2,6 @@ package dev.makeev.training_diary_app.out;
 
 /**
  * An implementation of the Output interface for displaying String information to the console.
- * @author Evgeniy Makeev
- * @version 1.4
  */
 public class OutputImpl implements Output<String> {
 

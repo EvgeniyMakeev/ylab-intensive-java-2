@@ -37,5 +37,12 @@ public interface TypeOfTrainingDAO {
      */
     List<TypeOfTraining> getAll();
 
-    Optional<TypeOfTraining> getByType(String typeOfTraining);
+    /**
+     * Retrieves a TypeOfTraining entity by its type.
+     *
+     * @param type The type of the TypeOfTraining entity to retrieve.
+     * @return An {@code Optional} containing the TypeOfTraining entity if found,
+     *         or empty if not found.
+     */
+    Optional<TypeOfTraining> getByType(String type);
 }

@@ -4,8 +4,6 @@ import java.util.Scanner;
 
 /**
  * Implementation of the {@link Input} interface for handling user input in a console application.
- * @author Evgeniy Makeev
- * @version 1.4
  */
 public class InputImpl implements Input {
 
@@ -65,7 +63,7 @@ public class InputImpl implements Input {
         boolean scan = true;
         while (scan) {
             str = input.nextLine();
-            if (str != null && !str.isEmpty()) {
+            if (str.matches("^\\d+(\\.\\d+)?$") && str != null && !str.isEmpty()) {
                 result = Double.parseDouble(str);
             }
             if (result >= 0) {
@@ -90,7 +88,7 @@ public class InputImpl implements Input {
         boolean scan = true;
             while (scan) {
                 str = input.nextLine();
-                if (str.length() <= maxLength) {
+                if (str.matches("[0-9]+") && str.length() <= maxLength) {
                     result = Integer.parseInt(str);
                     if (result >= min && result <= max) {
                         scan = false;

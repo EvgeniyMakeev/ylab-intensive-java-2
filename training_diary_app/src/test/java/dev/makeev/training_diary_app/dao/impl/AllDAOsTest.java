@@ -13,6 +13,7 @@ import dev.makeev.training_diary_app.utils.ConnectionManager;
 import dev.makeev.training_diary_app.utils.ConnectionManagerImpl;
 import dev.makeev.training_diary_app.utils.InitDB;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -72,6 +73,11 @@ public class AllDAOsTest {
         typeOfTrainingDAO = new TypeOfTrainingDAOImpl(testConnectionManager);
         trainingOfUserDAO = new TrainingOfUserDAOImpl(testConnectionManager);
         logEventDAO = new LogEventDAOImpl(testConnectionManager);
+    }
+
+    @AfterAll
+    static void afterAll() {
+        postgresContainer.stop();
     }
 
     @Test
@@ -199,7 +205,7 @@ public class AllDAOsTest {
     @Test
     @Order(12)
     @DisplayName("TrainingOfUserDAOImpl test: Get All Trainings for User by Type of Training - Should get all Trainings for User by Type of Training")
-    void getAllTrainingsForUserByTypeOfTraining_shouldGetAllTrainingsForUserByTypeOfTraining() throws EmptyException {
+    void getAllTrainingsForUserByTypeOfTraining_shouldGetAllTrainingsForUserByTypeOfTraining() {
         List<Training> trainings =
                 trainingOfUserDAO.getAllTrainingsForUserByTypeOfTraining(LOGIN, TYPE_OF_TRAINING_ID);
 

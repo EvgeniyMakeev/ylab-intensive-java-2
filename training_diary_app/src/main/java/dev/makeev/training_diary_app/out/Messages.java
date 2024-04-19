@@ -1,10 +1,17 @@
 package dev.makeev.training_diary_app.out;
 
 
-import dev.makeev.training_diary_app.model.*;
+import dev.makeev.training_diary_app.model.LogEvent;
+import dev.makeev.training_diary_app.model.Statistic;
+import dev.makeev.training_diary_app.model.Training;
+import dev.makeev.training_diary_app.model.TrainingOfUser;
+import dev.makeev.training_diary_app.model.TypeOfTraining;
 
 import java.util.List;
 
+/**
+ * Represents various messages and menus displayed to the user.
+ */
 public class Messages {
     private final Output<String> console;
 

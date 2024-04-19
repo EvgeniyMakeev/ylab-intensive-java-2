@@ -11,6 +11,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The {@code LogEventDAOImpl} class implements the {@link LogEventDAO} interface.
+ * It provides methods to interact with the database to manage LogEvent entities.
+ */
 public class LogEventDAOImpl implements LogEventDAO {
 
     private final static String ADD_SQL =
@@ -20,6 +24,11 @@ public class LogEventDAOImpl implements LogEventDAO {
 
     private final ConnectionManager connectionManager;
 
+    /**
+     * Constructs a new LogEventDAOImpl with the specified {@link ConnectionManager}.
+     *
+     * @param connectionManager The ConnectionManager used to manage database connections.
+     */
     public LogEventDAOImpl(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
@@ -42,7 +51,7 @@ public class LogEventDAOImpl implements LogEventDAO {
     public List<LogEvent> getAllEvents() throws EmptyException {
         try (var connection = connectionManager.open();
              var statement = connection.prepareStatement(GET_ALL_SQL)) {
-            return getUserLogEvents(statement);
+            return getLogEvents(statement);
         } catch (SQLException e) {
             throw new DaoException(e);
         }
@@ -53,13 +62,14 @@ public class LogEventDAOImpl implements LogEventDAO {
         try (var connection = connectionManager.open();
              var statement = connection.prepareStatement(GET_BY_LOGIN_SQL)) {
             statement.setString(1, login);
-            return getUserLogEvents(statement);
+            return getLogEvents(statement);
         } catch (SQLException e) {
             throw new DaoException(e);
         }
     }
 
-    private List<LogEvent> getUserLogEvents(PreparedStatement statement) throws SQLException, EmptyException {
+    @Override
+    public List<LogEvent> getLogEvents(PreparedStatement statement) throws SQLException, EmptyException {
         var result = statement.executeQuery();
         List<LogEvent> listOfLogEvents = new ArrayList<>();
         while (result.next()) {

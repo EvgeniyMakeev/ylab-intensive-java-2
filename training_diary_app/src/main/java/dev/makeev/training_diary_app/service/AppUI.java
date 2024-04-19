@@ -13,7 +13,11 @@ import dev.makeev.training_diary_app.exceptions.UserNotFoundException;
 import dev.makeev.training_diary_app.exceptions.VerificationException;
 import dev.makeev.training_diary_app.in.Input;
 import dev.makeev.training_diary_app.in.InputImpl;
-import dev.makeev.training_diary_app.model.*;
+import dev.makeev.training_diary_app.model.Statistic;
+import dev.makeev.training_diary_app.model.Training;
+import dev.makeev.training_diary_app.model.TrainingOfUser;
+import dev.makeev.training_diary_app.model.TypeOfTraining;
+import dev.makeev.training_diary_app.model.User;
 import dev.makeev.training_diary_app.out.Messages;
 import dev.makeev.training_diary_app.out.OutputImpl;
 import dev.makeev.training_diary_app.utils.ConnectionManager;
@@ -25,6 +29,10 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
+/**
+ * {@code AppUI} is the main class responsible for the application's user interface.
+ * It handles user input, displays messages, and interacts with the {@link UserService} and {@link TrainingsService}.
+ */
 public class AppUI {
 
     private final ConnectionManager connectionManager = new ConnectionManagerImpl();
@@ -52,10 +60,16 @@ public class AppUI {
     private boolean showDeleteMenu = false;
     private boolean showStatisticMenu = false;
 
+    /**
+     * Initializes the database.
+     */
     public void loadDB(){
         initDB.initDB();
     }
 
+    /**
+     * Starts the application.
+     */
     public void start() {
         console.welcomeMessage();
         while (appAreWorking) {
@@ -74,6 +88,9 @@ public class AppUI {
         console.endMessage();
     }
 
+    /**
+     * Displays the authorization menu and handles user input for authorization options.
+     */
     private void authorizationMenu() {
         console.authorizationMenu();
         if (userOption < 0) {
@@ -90,6 +107,9 @@ public class AppUI {
         }
     }
 
+    /**
+     * Displays the login menu and handles user login and registration.
+     */
     private void loginMenu() {
         boolean goBack = false;
         while (loginOfCurrentUser == null) {
@@ -140,6 +160,9 @@ public class AppUI {
         }
     }
 
+    /**
+     * Displays the user menu and handles user options related to training management.
+     */
     private void userMenu() {
         while (showUserMenu) {
             console.greetingMessage(loginOfCurrentUser);
@@ -182,9 +205,14 @@ public class AppUI {
         }
     }
 
+    /**
+     * Displays the menu for adding or editing a training and handles the corresponding actions.
+     *
+     * @param indexForEdit the index of the training to edit, or -1 for adding a new training.
+     */
     private void showTrainingMenu(int indexForEdit) {
+        String typeOfTraining = "";
         TypeOfTraining type = null;
-        String typeOfTraining = type.type();
         List<TypeOfTraining> listOfTypes = trainingsService.getAllTypesOfTraining();
         console.choiceTypeOfTrainingMessage();
         console.showTypesOfTraining(listOfTypes);
@@ -201,10 +229,15 @@ public class AppUI {
             case 2 -> {
                 console.addTypeOfTrainingMessage();
                 typeOfTraining = input.getString();
-                trainingsService.addTypeOfTraining(typeOfTraining);
-                console.print("A new type of training was added.");
-                logEventDAO.addEvent(loginOfCurrentUser,
-                        "Add a new type of training.");
+                if (trainingsService.getTypeOfTrainingByType(typeOfTraining).isEmpty()) {
+                    trainingsService.addTypeOfTraining(typeOfTraining);
+                    type = trainingsService.getTypeOfTrainingByType(typeOfTraining).get();
+                    console.print("A new type of training was added.");
+                    logEventDAO.addEvent(loginOfCurrentUser,
+                            "Add a new type of training.");
+                } else {
+                    type = trainingsService.getTypeOfTrainingByType(typeOfTraining).get();
+                }
             }
         }
 
@@ -228,9 +261,9 @@ public class AppUI {
                         trainingsService.getAllTrainingsForUser(loginOfCurrentUser)
                                 .get(indexForEdit).training().id();
                 TrainingOfUser newTrainingOfUser =
-                        new TrainingOfUser(loginOfCurrentUser,typeOfTraining,
-                                new Training(-1, type.id(), date, duration, caloriesBurned), null);
-                trainingsService.edite(idOfTrainingForEdite, newTrainingOfUser);
+                        new TrainingOfUser(loginOfCurrentUser, typeOfTraining,
+                                new Training(idOfTrainingForEdite, type.id(), date, duration, caloriesBurned), null);
+                trainingsService.editTraining(idOfTrainingForEdite, newTrainingOfUser);
             }
         } catch (EmptyException e) {
             console.print(e.getMessage());
@@ -244,79 +277,78 @@ public class AppUI {
         userOption = -1;
     }
 
+    /**
+     * Displays the training history for the current user.
+     */
     private void showTrainingHistory() {
         try {
             List<TrainingOfUser> trainingsOfUserList = trainingsService.getAllTrainingsForUser(loginOfCurrentUser);
             int trainingsListSize = trainingsOfUserList.size();
             console.printTrainingsForUser(trainingsOfUserList);
             userOption = -1;
-            logEventDAO.addEvent(loginOfCurrentUser,
-                    "Trainings history was viewed.");
-
             if (showEditMenu) {
-                if (trainingsOfUserList.isEmpty()) {
-                    showEditMenu = false;
-                    logEventDAO.addEvent(loginOfCurrentUser,
-                            "Trying edit training.");
-                    throw new EmptyException();
-                } else {
-                    console.printEditeMenu();
-                    userOption = input.getInt(3);
-                    switch (userOption) {
-                        case 1 -> { //if "Edite base info of training." was selected
-                            console.print("What training you want edite?");
-                            int indexOfTrainingForEdite = input.getInt(trainingsListSize) - 1;
-                            showTrainingMenu(indexOfTrainingForEdite);
-                        }
-                        case 2 -> { //if "Edite additional info of training." was selected
-                            console.print("What training you want edite?");
-                            int indexOfTrainingForEdite = input.getInt(trainingsListSize) - 1;
-                            long idOfTrainingForEdite =
-                                    trainingsOfUserList.get(indexOfTrainingForEdite).training().id();
-                            console.print("Enter info: ");
-                            String info = input.getString();
-                            console.print("Enter value: ");
-                            Double value = input.getDouble();
-                            trainingsService.editAdditionalInfo(idOfTrainingForEdite, info, value);
-                        }
-                        case 3 -> { //if "Back to User menu" was selected
-                            userOption = -1;
-                            showStatisticMenu = false;
-                        }
-                        case 0 ->  //if "Exit" was selected
-                                System.exit(0);
+                console.printEditeMenu();
+                userOption = input.getInt(3);
+                switch (userOption) {
+                    case 1 -> { //if "Edite base info of training." was selected
+                        console.print("What training you want edite?");
+                        int indexOfTrainingForEdite = input.getInt(trainingsListSize) - 1;
+                        showTrainingMenu(indexOfTrainingForEdite);
                     }
-
-                    console.editSuccessful();
-                    logEventDAO.addEvent(loginOfCurrentUser,
-                            "Edit training.");
-                    showEditMenu = false;
+                    case 2 -> { //if "Edite additional info of training." was selected
+                        console.print("What training you want edite?");
+                        int indexOfTrainingForEdite = input.getInt(trainingsListSize) - 1;
+                        long idOfTrainingForEdite =
+                                trainingsOfUserList.get(indexOfTrainingForEdite).training().id();
+                        console.print("Enter info: ");
+                        String info = input.getString();
+                        console.print("Enter value: ");
+                        Double value = input.getDouble();
+                        trainingsService.editAdditionalInfo(idOfTrainingForEdite, info, value);
+                    }
+                    case 3 -> { //if "Back to User menu" was selected
+                        userOption = -1;
+                        showStatisticMenu = false;
+                    }
+                    case 0 ->  //if "Exit" was selected
+                            System.exit(0);
                 }
+                console.editSuccessful();
+                logEventDAO.addEvent(loginOfCurrentUser,
+                        "Edit training.");
+                showEditMenu = false;
             }
-
             if (showDeleteMenu) {
-                if (trainingsOfUserList.isEmpty()) {
-                    showDeleteMenu = false;
-                    logEventDAO.addEvent(loginOfCurrentUser,
-                            "Trying delete training.");
-                    throw new EmptyException();
-                } else {
-                    console.print("What training name should I delete?");
-                    int indexForDelete = input.getInt(trainingsListSize) - 1;
-                    long idOfTrainingForDelete = trainingsOfUserList.get(indexForDelete).training().id();
-                    trainingsService.delete(idOfTrainingForDelete);
-                    console.deleteSuccessful();
-                    logEventDAO.addEvent(loginOfCurrentUser,
-                            "Delete training.");
-                    showDeleteMenu = false;
-                }
+                console.print("What training name should I delete?");
+                int indexForDelete = input.getInt(trainingsListSize) - 1;
+                long idOfTrainingForDelete = trainingsOfUserList.get(indexForDelete).training().id();
+                trainingsService.deleteTraining(idOfTrainingForDelete);
+                console.deleteSuccessful();
+                logEventDAO.addEvent(loginOfCurrentUser,
+                        "Delete training.");
+                showDeleteMenu = false;
             }
         } catch (EmptyException e) {
             console.print(e.getMessage());
+            userOption = -1;
+            if (showEditMenu) {
+                showEditMenu = false;
+                logEventDAO.addEvent(loginOfCurrentUser,
+                        "Trying edit training.");
+            } else if (showDeleteMenu) {
+                showDeleteMenu = false;
+                logEventDAO.addEvent(loginOfCurrentUser,
+                        "Trying delete training.");
+            } else {
+                logEventDAO.addEvent(loginOfCurrentUser,
+                        "Trainings history was viewed.");
+            }
         }
     }
 
-
+    /**
+     * Displays the menu for viewing training statistics and handles the corresponding actions.
+     */
     private void showStatisticOfTrainingMenu() {
         while (showStatisticMenu) {
             console.statisticMenu();
@@ -336,6 +368,9 @@ public class AppUI {
         }
     }
 
+    /**
+     * Displays the training statistics based on the user's selection.
+     */
     private void showStatisticOfTraining() {
         console.choiceTypeOfTrainingMessage();
         List<TypeOfTraining> listOfTypes = trainingsService.getAllTypesOfTraining();
@@ -374,6 +409,9 @@ public class AppUI {
         }
     }
 
+    /**
+     * Redirects to the admin options menu if the current user is an admin.
+     */
     private void goToAdminOptions() {
         try {
             if (userService.isAdmin(loginOfCurrentUser)) {
@@ -393,6 +431,10 @@ public class AppUI {
             console.print(e.getMessage());
         }
     }
+
+    /**
+     * Displays the admin options menu and handles admin-specific actions.
+     */
     private void showAdminMenu() {
         while (showAdminMenu) {
             console.adminMenu();
@@ -432,6 +474,9 @@ public class AppUI {
         }
     }
 
+    /**
+     * Displays the training history for all users.
+     */
     private void showTrainingHistoryForAllUsers() {
             List<User> users = userService.getAll();
             if (users.size() < 2) {
@@ -456,6 +501,9 @@ public class AppUI {
         userOption = -1;
     }
 
+    /**
+     * Displays the training history for a specific user.
+     */
     private void showTrainingHistoryForUser() {
         console.loginMessage();
         String login = input.getString();
@@ -482,6 +530,9 @@ public class AppUI {
         showHistoryForUser = false;
     }
 
+    /**
+     * Displays the log events for a specific user.
+     */
     private void logForUser() {
         console.loginMessage();
         String login = input.getString();
@@ -506,7 +557,9 @@ public class AppUI {
         showLogForUser = false;
     }
 
-
+    /**
+     * Logs out the current user.
+     */
     private void logOut() {
         logEventDAO.addEvent(loginOfCurrentUser,
                 "Logout.");
@@ -516,6 +569,11 @@ public class AppUI {
         userOption = -1;
     }
 
+    /**
+     * Retrieves the date from the user.
+     *
+     * @return the selected date.
+     */
     private LocalDate getDate() {
         console.setYearMessage();
         int year;
