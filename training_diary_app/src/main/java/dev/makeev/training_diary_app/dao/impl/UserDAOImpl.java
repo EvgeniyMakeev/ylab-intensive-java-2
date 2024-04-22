@@ -16,11 +16,6 @@ import java.util.Optional;
  */
 public class UserDAOImpl implements UserDAO {
 
-    private final static String ADD_SQL =
-            "INSERT INTO non_public.users (login, password, admin) VALUES (?,?,?)";
-    private final static String GET_ALL_SQL = "SELECT * FROM non_public.users";
-    private final static String GET_BY_LOGIN_SQL = GET_ALL_SQL + " WHERE login=?";
-
     private final ConnectionManager connectionManager;
 
     public UserDAOImpl(ConnectionManager connectionManager) {
@@ -30,7 +25,7 @@ public class UserDAOImpl implements UserDAO {
     @Override
     public void add(String login, String password) {
         try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(ADD_SQL)) {
+             var statement = connection.prepareStatement(DAOConstants.ADD_USER_SQL)) {
             statement.setString(1, login);
             statement.setString(2, password);
             statement.setBoolean(3, false);
@@ -43,7 +38,7 @@ public class UserDAOImpl implements UserDAO {
     @Override
     public Optional<User> getByLogin(String login) {
         try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(GET_BY_LOGIN_SQL)) {
+             var statement = connection.prepareStatement(DAOConstants.GET_USER_BY_LOGIN_SQL)) {
             statement.setString(1, login);
             User user = null;
             var result = statement.executeQuery();
@@ -61,7 +56,7 @@ public class UserDAOImpl implements UserDAO {
     @Override
     public List<User> getAll() {
         try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(GET_ALL_SQL)) {
+             var statement = connection.prepareStatement(DAOConstants.GET_ALL_USERS_SQL)) {
             List<User> listOfUsers = new ArrayList<>();
             var result = statement.executeQuery();
             while (result.next()) {

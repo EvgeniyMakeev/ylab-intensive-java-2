@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class InputImplTest {
 
     /**
-     * Test case for the {@link InputImpl#getInt(int)} method
+     * Test case for the {@link InputImpl#getInt(int, int)} method
      * with valid input, should return the expected integer.
      */
     @Test
@@ -24,7 +24,7 @@ public class InputImplTest {
         InputStream in = new ByteArrayInputStream(inputString.getBytes());
         System.setIn(in);
         InputImpl input = new InputImpl();
-        int result = input.getInt(9);
+        int result = input.getInt(0, 9);
 
         assertThat(result).isEqualTo(5);
     }

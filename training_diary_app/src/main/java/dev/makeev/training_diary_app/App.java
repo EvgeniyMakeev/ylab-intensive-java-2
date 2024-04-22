@@ -1,7 +1,5 @@
 package dev.makeev.training_diary_app;
 
-import dev.makeev.training_diary_app.service.AppUI;
-
 /**
  * The main class representing the training diary application.
  * @author Evgeniy Makeev

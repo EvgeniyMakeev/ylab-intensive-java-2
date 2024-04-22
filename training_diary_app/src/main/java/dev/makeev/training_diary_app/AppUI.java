@@ -1,4 +1,4 @@
-package dev.makeev.training_diary_app.service;
+package dev.makeev.training_diary_app;
 
 import dev.makeev.training_diary_app.dao.LogEventDAO;
 import dev.makeev.training_diary_app.dao.impl.TrainingOfUserDAOImpl;
@@ -20,6 +20,8 @@ import dev.makeev.training_diary_app.model.TypeOfTraining;
 import dev.makeev.training_diary_app.model.User;
 import dev.makeev.training_diary_app.out.Messages;
 import dev.makeev.training_diary_app.out.OutputImpl;
+import dev.makeev.training_diary_app.service.TrainingsService;
+import dev.makeev.training_diary_app.service.UserService;
 import dev.makeev.training_diary_app.utils.ConnectionManager;
 import dev.makeev.training_diary_app.utils.ConnectionManagerImpl;
 import dev.makeev.training_diary_app.utils.InitDB;
@@ -94,7 +96,7 @@ public class AppUI {
     private void authorizationMenu() {
         console.authorizationMenu();
         if (userOption < 0) {
-            userOption = input.getInt(2);
+            userOption = input.getInt(0, 2);
         }
 
         switch (userOption) {
@@ -144,7 +146,7 @@ public class AppUI {
                 }
             }
             console.tryOrBackMessage();
-            if (input.getInt(2) == 2) {
+            if (input.getInt(1, 2) == 2) {
                 goBack = true;
                 break;
             }
@@ -168,7 +170,7 @@ public class AppUI {
             console.greetingMessage(loginOfCurrentUser);
             console.userMenu();
             if (userOption < 0) {
-                userOption = input.getInt(7);
+                userOption = input.getInt(0, 7);
             }
             switch (userOption) {
                 case 1 -> //if "Add new training." was selected
@@ -217,12 +219,12 @@ public class AppUI {
         console.choiceTypeOfTrainingMessage();
         console.showTypesOfTraining(listOfTypes);
         console.choiceTypeMessage();
-        userOption = input.getInt(2);
+        userOption = input.getInt(1, 2);
 
         switch (userOption) {
             case 1 -> {
                 console.print("Choose type from list.");
-                int index = input.getInt(listOfTypes.size()) - 1;
+                int index = input.getInt(1, listOfTypes.size()) - 1;
                 type = listOfTypes.get(index);
                 typeOfTraining = type.type();
             }
@@ -288,16 +290,16 @@ public class AppUI {
             userOption = -1;
             if (showEditMenu) {
                 console.printEditeMenu();
-                userOption = input.getInt(3);
+                userOption = input.getInt(0, 3);
                 switch (userOption) {
                     case 1 -> { //if "Edite base info of training." was selected
                         console.print("What training you want edite?");
-                        int indexOfTrainingForEdite = input.getInt(trainingsListSize) - 1;
+                        int indexOfTrainingForEdite = input.getInt(1, trainingsListSize) - 1;
                         showTrainingMenu(indexOfTrainingForEdite);
                     }
                     case 2 -> { //if "Edite additional info of training." was selected
                         console.print("What training you want edite?");
-                        int indexOfTrainingForEdite = input.getInt(trainingsListSize) - 1;
+                        int indexOfTrainingForEdite = input.getInt(1, trainingsListSize) - 1;
                         long idOfTrainingForEdite =
                                 trainingsOfUserList.get(indexOfTrainingForEdite).training().id();
                         console.print("Enter info: ");
@@ -320,7 +322,7 @@ public class AppUI {
             }
             if (showDeleteMenu) {
                 console.print("What training name should I delete?");
-                int indexForDelete = input.getInt(trainingsListSize) - 1;
+                int indexForDelete = input.getInt(1, trainingsListSize) - 1;
                 long idOfTrainingForDelete = trainingsOfUserList.get(indexForDelete).training().id();
                 trainingsService.deleteTraining(idOfTrainingForDelete);
                 console.deleteSuccessful();
@@ -352,7 +354,7 @@ public class AppUI {
     private void showStatisticOfTrainingMenu() {
         while (showStatisticMenu) {
             console.statisticMenu();
-            userOption = input.getInt(3);
+            userOption = input.getInt(0, 3);
             switch (userOption) {
                 case 1 -> //if "Show statistic of trainings by duration." was selected
                         showStatisticOfTraining();
@@ -378,7 +380,7 @@ public class AppUI {
         int maxIndex = listOfTypes.size();
         int allType = maxIndex + 1;
         console.print(allType + ". All types.");
-        int typeIndex = input.getInt(allType);
+        int typeIndex = input.getInt(1, allType);
         if (typeIndex <= maxIndex) {
             try {
                 long typeOfTrainingId = listOfTypes.get(typeIndex).id();
@@ -438,7 +440,7 @@ public class AppUI {
     private void showAdminMenu() {
         while (showAdminMenu) {
             console.adminMenu();
-            userOption = input.getInt(5);
+            userOption = input.getInt(0, 5);
             switch (userOption) {
                 case 1 -> //if "Show training history for all users." was selected
                         showTrainingHistoryForAllUsers();

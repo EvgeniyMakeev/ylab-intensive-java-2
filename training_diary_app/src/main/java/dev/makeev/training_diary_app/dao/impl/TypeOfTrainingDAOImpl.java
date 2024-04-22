@@ -16,11 +16,6 @@ import java.util.Optional;
  */
 public class TypeOfTrainingDAOImpl implements TypeOfTrainingDAO {
 
-    private final static String ADD_SQL =
-            "INSERT INTO non_public.types_of_training (type) VALUES (?)";
-    private final static String GET_ALL_SQL = "SELECT * FROM non_public.types_of_training";
-    private final static String GET_BY_ID_SQL = GET_ALL_SQL + " WHERE id=?";
-    private static final String GET_BY_TYPE_SQL = GET_ALL_SQL + " WHERE type=?";
     private final ConnectionManager connectionManager;
 
     public TypeOfTrainingDAOImpl(ConnectionManager connectionManager) {
@@ -31,7 +26,7 @@ public class TypeOfTrainingDAOImpl implements TypeOfTrainingDAO {
     @Override
     public void add(String type) {
         try (var connection = connectionManager.open();
-             var statementAdd = connection.prepareStatement(ADD_SQL)) {
+             var statementAdd = connection.prepareStatement(DAOConstants.ADD_TYPE_OF_TRAINING_SQL)) {
             statementAdd.setString(1, type);
             statementAdd.executeUpdate();
         } catch (SQLException e) {
@@ -42,7 +37,7 @@ public class TypeOfTrainingDAOImpl implements TypeOfTrainingDAO {
     @Override
     public List<TypeOfTraining> getAll() {
         try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(GET_ALL_SQL)) {
+             var statement = connection.prepareStatement(DAOConstants.GET_ALL_TYPES_OF_TRAINING_SQL)) {
             List<TypeOfTraining> listOfTraining = new ArrayList<>();
             var result = statement.executeQuery();
             while (result.next()) {
@@ -60,7 +55,7 @@ public class TypeOfTrainingDAOImpl implements TypeOfTrainingDAO {
     @Override
     public Optional<TypeOfTraining> getById(long id) {
         try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(GET_BY_ID_SQL)) {
+             var statement = connection.prepareStatement(DAOConstants.GET_TYPE_OF_TRAINING_BY_ID_SQL)) {
             statement.setLong(1, id);
             TypeOfTraining typeOfTraining = null;
             var result = statement.executeQuery();
@@ -76,7 +71,7 @@ public class TypeOfTrainingDAOImpl implements TypeOfTrainingDAO {
     @Override
     public Optional<TypeOfTraining> getByType(String type) {
         try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(GET_BY_TYPE_SQL)) {
+             var statement = connection.prepareStatement(DAOConstants.GET_TYPE_OF_TRAINING_BY_TYPE_SQL)) {
             statement.setString(1, type);
             TypeOfTraining typeOfTraining = null;
             var result = statement.executeQuery();

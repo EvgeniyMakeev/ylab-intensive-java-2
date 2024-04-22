@@ -19,32 +19,6 @@ import java.util.Map;
  * It provides methods to interact with the database to manage Training entities.
  */
 public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
-    private final static String ADD_SQL =
-            "INSERT INTO non_public.trainings " +
-                    "(user_login, type_of_training_id, date, duration, calories_burned) " +
-                    "VALUES (?,?,?,?,?)";
-    private final static String GET_ALL_SQL =
-            "SELECT * FROM non_public.trainings";
-    private final static String GET_ALL_TRAININGS_FOR_USER_SQL =
-            GET_ALL_SQL + " WHERE user_login=? ORDER BY date";
-
-    private static final String UPDATE_SQL = "UPDATE non_public.trainings " +
-            "SET type_of_training_id=?, date=?, duration=?, calories_burned=?" +
-            " WHERE id=?";
-    private static final String DELETE_SQL =
-            "DELETE FROM non_public.trainings WHERE id=?";
-    private static final String GET_ALL_TRAININGS_FOR_USER_BY_TYPE_OF_TRAINING_SQL =
-            GET_ALL_SQL + " WHERE user_login=? AND type_of_training_id=? ORDER BY date";
-
-    private static final String ADD_ADDITIONAL_INFORMATION_FOR_TRAINING_SQL =
-            "INSERT INTO non_public.additional_information " +
-            "(training_id, information, value) " +
-            "VALUES (?,?,?)";
-    private static final String GET_ADDITIONAL_INFORMATION_FOR_TRAINING_SQL =
-            "SELECT * FROM non_public.additional_information WHERE training_id=?";
-    private static final String DELETE_ADDITIONAL_INFORMATION_SQL =
-            "DELETE FROM non_public.additional_information WHERE training_id=?";
-
 
     private final ConnectionManager connectionManager;
 
@@ -57,7 +31,7 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
     public void add(String login, long typeOfTrainingId, LocalDate date,
                     double duration, double caloriesBurned) {
         try (var connection = connectionManager.open();
-             var statementAdd = connection.prepareStatement(ADD_SQL)) {
+             var statementAdd = connection.prepareStatement(DAOConstants.ADD_TRAINING_OF_USER_SQL)) {
 
             statementAdd.setString(1, login);
             statementAdd.setLong(2, typeOfTrainingId);
@@ -74,7 +48,8 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
     @Override
     public List<Training> getByLogin(String login) throws EmptyException {
         try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(GET_ALL_TRAININGS_FOR_USER_SQL)) {
+             var statement = connection.prepareStatement(
+                     DAOConstants.GET_ALL_TRAINING_OF_USER_FOR_USER_SQL)) {
             statement.setString(1, login);
             var result = statement.executeQuery();
             List<Training> listOfTrainingsOfUser = new ArrayList<>();
@@ -99,7 +74,8 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
     @Override
     public List<Training> getAllTrainingsForUserByTypeOfTraining(String login, long typeOfTrainingId) {
         try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(GET_ALL_TRAININGS_FOR_USER_BY_TYPE_OF_TRAINING_SQL)) {
+             var statement = connection.prepareStatement(
+                     DAOConstants.GET_ALL_TRAININGS_FOR_USER_BY_TYPE_OF_TRAINING_SQL)) {
             statement.setString(1, login);
             statement.setLong(2, typeOfTrainingId);
             var result = statement.executeQuery();
@@ -122,7 +98,8 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
     public void addAdditionalInformation(long trainingId, Map<String, Double> additionalInformation) {
         for (Map.Entry<String, Double> info : additionalInformation.entrySet()) {
             try (var connection = connectionManager.open();
-                 var statement = connection.prepareStatement(ADD_ADDITIONAL_INFORMATION_FOR_TRAINING_SQL)) {
+                 var statement = connection.prepareStatement(
+                         DAOConstants.ADD_ADDITIONAL_INFORMATION_FOR_TRAINING_OF_USER_SQL)) {
                 statement.setLong(1, trainingId);
                 statement.setString(2, info.getKey());
                 statement.setDouble(3, info.getValue());
@@ -136,7 +113,8 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
     @Override
     public Map<String, Double> getAdditionalInformation(long id) {
         try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(GET_ADDITIONAL_INFORMATION_FOR_TRAINING_SQL)) {
+             var statement = connection.prepareStatement(
+                     DAOConstants.GET_ADDITIONAL_INFORMATION_FOR_TRAINING_OF_USER_SQL)) {
             statement.setLong(1, id);
             var result = statement.executeQuery();
             Map<String, Double> additionalInformation = new HashMap<>();
@@ -157,7 +135,7 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
                      Double newDuration,
                      Double newCaloriesBurned) {
         try (var connection = connectionManager.open();
-             var statementEdite = connection.prepareStatement(UPDATE_SQL)) {
+             var statementEdite = connection.prepareStatement(DAOConstants.UPDATE_TRAINING_OF_USER_SQL)) {
             statementEdite.setLong(1, newTypeOfTrainingId);
             statementEdite.setDate(2, Date.valueOf(newDate));
             statementEdite.setDouble(3, newDuration);
@@ -177,13 +155,13 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
             connection.setAutoCommit(false);
             try {
                 try (var statementDeleteAdditionalInformation =
-                             connection.prepareStatement(DELETE_ADDITIONAL_INFORMATION_SQL)) {
+                             connection.prepareStatement(DAOConstants.DELETE_ADDITIONAL_INFORMATION_TRAINING_OF_USER_SQL)) {
                     statementDeleteAdditionalInformation.setLong(1, id);
                     statementDeleteAdditionalInformation.executeUpdate();
                 }
 
                 try (var statementDelete =
-                             connection.prepareStatement(DELETE_SQL)) {
+                             connection.prepareStatement(DAOConstants.DELETE_TRAINING_OF_USER_SQL)) {
                     statementDelete.setLong(1, id);
                     statementDelete.executeUpdate();
                 }

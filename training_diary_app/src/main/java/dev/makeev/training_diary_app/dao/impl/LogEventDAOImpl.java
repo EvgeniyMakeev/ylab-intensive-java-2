@@ -17,11 +17,6 @@ import java.util.List;
  */
 public class LogEventDAOImpl implements LogEventDAO {
 
-    private final static String ADD_SQL =
-            "INSERT INTO non_public.log_events (user_login, message) VALUES (?,?)";
-    private final static String GET_ALL_SQL = "SELECT * FROM non_public.log_events";
-    private final static String GET_BY_LOGIN_SQL = GET_ALL_SQL + " WHERE user_login=?";
-
     private final ConnectionManager connectionManager;
 
     /**
@@ -37,7 +32,7 @@ public class LogEventDAOImpl implements LogEventDAO {
     @Override
     public void addEvent(String login, String message) {
         try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(ADD_SQL)) {
+             var statement = connection.prepareStatement(DAOConstants.ADD_LOG_EVENT_SQL)) {
             statement.setString(1, login);
             statement.setString(2, message);
 
@@ -50,7 +45,7 @@ public class LogEventDAOImpl implements LogEventDAO {
     @Override
     public List<LogEvent> getAllEvents() throws EmptyException {
         try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(GET_ALL_SQL)) {
+             var statement = connection.prepareStatement(DAOConstants.GET_ALL_LOG_EVENTS_SQL)) {
             return getLogEvents(statement);
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -60,7 +55,7 @@ public class LogEventDAOImpl implements LogEventDAO {
     @Override
     public List<LogEvent> getAllEventsForUser(String login) throws EmptyException {
         try (var connection = connectionManager.open();
-             var statement = connection.prepareStatement(GET_BY_LOGIN_SQL)) {
+             var statement = connection.prepareStatement(DAOConstants.GET_LOG_EVENT_BY_LOGIN_SQL)) {
             statement.setString(1, login);
             return getLogEvents(statement);
         } catch (SQLException e) {

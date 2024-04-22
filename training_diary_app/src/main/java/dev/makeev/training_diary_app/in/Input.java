@@ -8,10 +8,11 @@ public interface Input {
     /**
      * Reads and returns an integer input from the user within the specified range.
      *
-     * @param max The maximum allowed integer value.
+     * @param minValue The minimum allowed integer value.
+     * @param maxValue The maximum allowed integer value.
      * @return The integer input from the user.
      */
-    int getInt(int max);
+    int getInt(int minValue, int maxValue);
 
     /**
      * Reads and returns a string input from the user.
