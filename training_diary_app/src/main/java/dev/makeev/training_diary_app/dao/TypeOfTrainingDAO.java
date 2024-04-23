@@ -28,7 +28,7 @@ public interface TypeOfTrainingDAO {
      *         or empty if not found.
      * @throws EmptyException If no TypeOfTraining entity with the specified index is found.
      */
-    Optional<TypeOfTraining> getById(long id) throws EmptyException;
+    Optional<TypeOfTraining> getById(long id);
 
     /**
      * Retrieves a list of all TypeOfTraining entities.

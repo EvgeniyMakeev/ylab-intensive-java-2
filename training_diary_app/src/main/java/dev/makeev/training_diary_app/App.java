@@ -3,7 +3,7 @@ package dev.makeev.training_diary_app;
 /**
  * The main class representing the training diary application.
  * @author Evgeniy Makeev
- * @version 2.3
+ * @version 2.5
  */
 public class App {
     /**

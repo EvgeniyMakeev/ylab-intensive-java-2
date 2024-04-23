@@ -46,7 +46,7 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
     }
 
     @Override
-    public List<Training> getByLogin(String login) throws EmptyException {
+    public List<Training> getByLogin(String login){
         try (var connection = connectionManager.open();
              var statement = connection.prepareStatement(
                      DAOConstants.GET_ALL_TRAINING_OF_USER_FOR_USER_SQL)) {
@@ -61,9 +61,6 @@ public class TrainingOfUserDAOImpl implements TrainingOfUserDAO {
                 Double caloriesBurned = result.getDouble("calories_burned");
                 Training training = new Training(id, typeOfTrainingId, date, duration, caloriesBurned);
                 listOfTrainingsOfUser.add(training);
-            }
-            if (listOfTrainingsOfUser.isEmpty()) {
-                throw new EmptyException();
             }
             return listOfTrainingsOfUser;
         } catch (SQLException e) {

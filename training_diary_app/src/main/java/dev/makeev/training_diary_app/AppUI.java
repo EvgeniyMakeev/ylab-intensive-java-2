@@ -30,6 +30,7 @@ import dev.makeev.training_diary_app.utils.InitDB;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * {@code AppUI} is the main class responsible for the application's user interface.
@@ -178,11 +179,13 @@ public class AppUI {
                 case 2 -> {//if "Edite training." was selected
                     showEditMenu = true;
                     showTrainingHistory();
-                    }
+                    showEditMenu = false;
+                }
                 case 3 -> {//if "Delete training." was selected
                     showDeleteMenu = true;
                     showTrainingHistory();
-                    }
+                    showDeleteMenu = false;
+                }
                 case 4 -> //if "Show trainings history." was selected
                         showTrainingHistory();
                 case 5 -> {//if "Show statistic of trainings." was selected
@@ -214,7 +217,7 @@ public class AppUI {
      */
     private void showTrainingMenu(int indexForEdit) {
         String typeOfTraining = "";
-        TypeOfTraining type = null;
+        Optional<TypeOfTraining> type = Optional.empty();
         List<TypeOfTraining> listOfTypes = trainingsService.getAllTypesOfTraining();
         console.choiceTypeOfTrainingMessage();
         console.showTypesOfTraining(listOfTypes);
@@ -225,20 +228,20 @@ public class AppUI {
             case 1 -> {
                 console.print("Choose type from list.");
                 int index = input.getInt(1, listOfTypes.size()) - 1;
-                type = listOfTypes.get(index);
-                typeOfTraining = type.type();
+                type = Optional.of(listOfTypes.get(index));
+                typeOfTraining = type.get().type();
             }
             case 2 -> {
                 console.addTypeOfTrainingMessage();
                 typeOfTraining = input.getString();
                 if (trainingsService.getTypeOfTrainingByType(typeOfTraining).isEmpty()) {
                     trainingsService.addTypeOfTraining(typeOfTraining);
-                    type = trainingsService.getTypeOfTrainingByType(typeOfTraining).get();
+                    type = Optional.of(trainingsService.getTypeOfTrainingByType(typeOfTraining).get());
                     console.print("A new type of training was added.");
                     logEventDAO.addEvent(loginOfCurrentUser,
                             "Add a new type of training.");
                 } else {
-                    type = trainingsService.getTypeOfTrainingByType(typeOfTraining).get();
+                    type = Optional.of(trainingsService.getTypeOfTrainingByType(typeOfTraining).get());
                 }
             }
         }
@@ -264,15 +267,16 @@ public class AppUI {
                                 .get(indexForEdit).training().id();
                 TrainingOfUser newTrainingOfUser =
                         new TrainingOfUser(loginOfCurrentUser, typeOfTraining,
-                                new Training(idOfTrainingForEdite, type.id(), date, duration, caloriesBurned), null);
+                                new Training(idOfTrainingForEdite, type.orElseThrow(EmptyException::new).id(),
+                                        date, duration, caloriesBurned), null);
                 trainingsService.editTraining(idOfTrainingForEdite, newTrainingOfUser);
             }
-        } catch (EmptyException e) {
-            console.print(e.getMessage());
         } catch (UserNotFoundException e) {
             console.print(e.getMessage());
         } catch (TrainingOnDateAlreadyExistsException e) {
             console.print(e.getMessage());
+        } catch (EmptyException e) {
+            throw new RuntimeException(e);
         }
 
         showAddTrainingMenu = false;
@@ -283,11 +287,15 @@ public class AppUI {
      * Displays the training history for the current user.
      */
     private void showTrainingHistory() {
-        try {
-            List<TrainingOfUser> trainingsOfUserList = trainingsService.getAllTrainingsForUser(loginOfCurrentUser);
+        userOption = -1;
+        List<TrainingOfUser> trainingsOfUserList = trainingsService.getAllTrainingsForUser(loginOfCurrentUser);
+        if (trainingsOfUserList.isEmpty()) {
+            console.print(new EmptyException().getMessage());
+            logEventDAO.addEvent(loginOfCurrentUser,
+                    "Trainings history was viewed.");
+        } else {
             int trainingsListSize = trainingsOfUserList.size();
             console.printTrainingsForUser(trainingsOfUserList);
-            userOption = -1;
             if (showEditMenu) {
                 console.printEditeMenu();
                 userOption = input.getInt(0, 3);
@@ -318,9 +326,7 @@ public class AppUI {
                 console.editSuccessful();
                 logEventDAO.addEvent(loginOfCurrentUser,
                         "Edit training.");
-                showEditMenu = false;
-            }
-            if (showDeleteMenu) {
+            } else if (showDeleteMenu) {
                 console.print("What training name should I delete?");
                 int indexForDelete = input.getInt(1, trainingsListSize) - 1;
                 long idOfTrainingForDelete = trainingsOfUserList.get(indexForDelete).training().id();
@@ -328,19 +334,6 @@ public class AppUI {
                 console.deleteSuccessful();
                 logEventDAO.addEvent(loginOfCurrentUser,
                         "Delete training.");
-                showDeleteMenu = false;
-            }
-        } catch (EmptyException e) {
-            console.print(e.getMessage());
-            userOption = -1;
-            if (showEditMenu) {
-                showEditMenu = false;
-                logEventDAO.addEvent(loginOfCurrentUser,
-                        "Trying edit training.");
-            } else if (showDeleteMenu) {
-                showDeleteMenu = false;
-                logEventDAO.addEvent(loginOfCurrentUser,
-                        "Trying delete training.");
             } else {
                 logEventDAO.addEvent(loginOfCurrentUser,
                         "Trainings history was viewed.");
@@ -397,16 +390,18 @@ public class AppUI {
                 console.print(e.getMessage());
             }
         } else {
-            try {
-                console.print("Statistic for all types of training:");
-                List<TrainingOfUser> trainingsOfUserList =
-                        trainingsService.getAllTrainingsForUser(loginOfCurrentUser);
+            console.print("Statistic for all types of training:");
+            List<TrainingOfUser> trainingsOfUserList =
+                    trainingsService.getAllTrainingsForUser(loginOfCurrentUser);
+            if (trainingsOfUserList.isEmpty()) {
+                console.print(new EmptyException().getMessage());
+                logEventDAO.addEvent(loginOfCurrentUser,
+                        "Trying view training statistics for all types of trainings.");
+            } else {
                 Statistic statistic = trainingsService.getStatistic(trainingsOfUserList, userOption);
                 console.printStatistic(statistic, userOption);
                 logEventDAO.addEvent(loginOfCurrentUser,
                         "Viewed training statistics for all types of trainings.");
-            } catch (EmptyException e) {
-                console.print(e.getMessage());
             }
         }
     }
@@ -482,20 +477,12 @@ public class AppUI {
     private void showTrainingHistoryForAllUsers() {
             List<User> users = userService.getAll();
             if (users.size() < 2) {
-                try {
-                    throw new EmptyException();
-                } catch (EmptyException e) {
-                    console.print(e.getMessage());
-                }
+                console.print(new EmptyException().getMessage());
             }
             console.print("History of trainings for all users:");
             for (User user : users) {
                 List<TrainingOfUser> trainingOfUserList;
-                try {
-                    trainingOfUserList = trainingsService.getAllTrainingsForUser(user.login());
-                } catch (EmptyException e) {
-                    continue;
-                }
+                trainingOfUserList = trainingsService.getAllTrainingsForUser(user.login());
                 console.printTrainings(trainingOfUserList);
             }
             logEventDAO.addEvent(loginOfCurrentUser,
@@ -511,18 +498,19 @@ public class AppUI {
         String login = input.getString();
         try {
             if (userService.existByLogin(login)) {
-                console.printTrainingsForUser(
-                        trainingsService.getAllTrainingsForUser(login));
-                logEventDAO.addEvent(loginOfCurrentUser,
-                        "Training history for user was viewed.");
+                List<TrainingOfUser> listOfTrainings = trainingsService.getAllTrainingsForUser(login);
+                if (listOfTrainings.isEmpty()){
+                    console.print(new EmptyException().getMessage());
+                } else {
+                    console.printTrainingsForUser(
+                            trainingsService.getAllTrainingsForUser(login));
+                    logEventDAO.addEvent(loginOfCurrentUser,
+                            "Training history for user was viewed.");
+                }
             } else {
                 throw new UserNotFoundException();
             }
         } catch (UserNotFoundException e) {
-            console.print(e.getMessage());
-            logEventDAO.addEvent(loginOfCurrentUser,
-                    "Tried to view a training history for user.");
-        } catch (EmptyException e) {
             console.print(e.getMessage());
             logEventDAO.addEvent(loginOfCurrentUser,
                     "Tried to view a training history for user.");
@@ -587,13 +575,14 @@ public class AppUI {
         int month;
         do {
             month = input.getInteger(2, 1, 12);
-        } while (month <= 0 && month > 12);
+        } while (month <= 0);
 
         console.setDayMessage();
         int day;
+        int daysInMonth = YearMonth.of(year, month).lengthOfMonth();
         do {
-            day = input.getInteger(2, 1, 12);
-        } while (day <= 0 && day > YearMonth.of(year, month).lengthOfMonth());
+            day = input.getInteger(2, 1, daysInMonth);
+        } while (day <= 0);
 
         return LocalDate.of(year, month, day);
     }

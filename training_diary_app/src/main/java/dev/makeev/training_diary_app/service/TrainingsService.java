@@ -106,7 +106,7 @@ public class TrainingsService {
      * @return a list of all trainings for the user.
      * @throws EmptyException if no trainings are found for the user.
      */
-    public List<TrainingOfUser> getAllTrainingsForUser(String login) throws EmptyException {
+    public List<TrainingOfUser> getAllTrainingsForUser(String login) {
         List<Training> trainingList = trainingOfUserDAO.getByLogin(login);
         trainingList.sort(Comparator.comparing(Training::date));
         return getTrainingOfUsers(login, trainingList);
@@ -134,17 +134,18 @@ public class TrainingsService {
      * @return a list of TrainingOfUser.
      * @throws EmptyException if no type of training is found.
      */
-    private List<TrainingOfUser> getTrainingOfUsers(String login, List<Training> trainingList) throws EmptyException {
+    private List<TrainingOfUser> getTrainingOfUsers(String login, List<Training> trainingList) {
         List<TrainingOfUser> trainingOfUserList = new ArrayList<>();
         for (Training training : trainingList) {
-            TypeOfTraining typeOfTraining =
-                    typeOfTrainingDAO.getById(training.typeOfTrainingId())
-                            .orElseThrow(EmptyException::new);
-            Map<String, Double> additionalInformation =
-                    trainingOfUserDAO.getAdditionalInformation(training.id());
-            trainingOfUserList.add(
-                    new TrainingOfUser(
-                            login, typeOfTraining.type(), training, additionalInformation));
+            Optional<TypeOfTraining> typeOfTraining =
+                    typeOfTrainingDAO.getById(training.typeOfTrainingId());
+            if (typeOfTraining.isPresent()) {
+                Map<String, Double> additionalInformation =
+                        trainingOfUserDAO.getAdditionalInformation(training.id());
+                trainingOfUserList.add(
+                        new TrainingOfUser(
+                                login, typeOfTraining.get().type(), training, additionalInformation));
+            }
         }
         return trainingOfUserList;
     }
@@ -164,9 +165,8 @@ public class TrainingsService {
      * @param idOfTrainingForEdit the id of the training to edit.
      * @param info                the additional information.
      * @param value               the value to set.
-     * @throws EmptyException if no additional information is found for the training.
      */
-    public void editAdditionalInfo(long idOfTrainingForEdit, String info, Double value) throws EmptyException {
+    public void editAdditionalInfo(long idOfTrainingForEdit, String info, Double value){
         Map<String, Double> additionalInformation = trainingOfUserDAO.getAdditionalInformation(idOfTrainingForEdit);
         additionalInformation.put(info, value);
         trainingOfUserDAO.addAdditionalInformation(idOfTrainingForEdit, additionalInformation);
@@ -178,10 +178,9 @@ public class TrainingsService {
      * @param idOfTrainingForEdit the id of the training to edit.
      * @param newTrainingOfUser    the new training details.
      * @throws TrainingOnDateAlreadyExistsException if a training already exists on the given date.
-     * @throws EmptyException                       if no type of training is found.
      */
     public void editTraining(long idOfTrainingForEdit, TrainingOfUser newTrainingOfUser)
-            throws TrainingOnDateAlreadyExistsException, EmptyException {
+            throws TrainingOnDateAlreadyExistsException {
         String login = newTrainingOfUser.login();
         List<Training> trainingList = trainingOfUserDAO.getByLogin(login);
         LocalDate newDate = newTrainingOfUser.training().date();

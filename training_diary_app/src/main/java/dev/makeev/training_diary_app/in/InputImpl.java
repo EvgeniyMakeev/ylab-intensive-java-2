@@ -47,8 +47,10 @@ public class InputImpl implements Input {
         boolean scan = true;
         while (scan) {
             str = input.nextLine();
-            if (str.matches("^\\d+(\\.\\d+)?$") && str != null && !str.isEmpty()) {
+            if (str.matches("^\\d+(\\.\\d+)?$") && !str.isEmpty()) {
                 result = Double.parseDouble(str);
+            } else {
+                System.out.println("You can only enter a positive number");
             }
             if (result >= 0) {
                     scan = false;
@@ -68,9 +70,11 @@ public class InputImpl implements Input {
                     result = Integer.parseInt(str);
                     if (result >= minValue && result <= maxValue) {
                         scan = false;
+                    } else {
+                        System.out.printf("Enter only digits %d - %d\n", minValue, maxValue);
                     }
                 } else {
-                    System.out.printf("Enter only digits %d - %d and not longer %d digits\n", minValue, maxValue, maxLength);
+                    System.out.printf("The number must be no longer than %d characters\n", maxLength);
                 }
             }
         return result;

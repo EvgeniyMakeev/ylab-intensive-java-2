@@ -34,7 +34,7 @@ public interface TrainingOfUserDAO {
      * @return A list of all training records associated with the user.
      * @throws EmptyException if no training records are found.
      */
-    List<Training> getByLogin(String login) throws EmptyException;
+    List<Training> getByLogin(String login);
 
     /**
      * Retrieves all training records of a specific type associated with a user.
@@ -58,9 +58,8 @@ public interface TrainingOfUserDAO {
      *
      * @param id The ID of the training record to retrieve additional information for.
      * @return A map containing the additional information for the training record.
-     * @throws EmptyException if no additional information is found.
      */
-    Map<String, Double> getAdditionalInformation(long id) throws EmptyException;
+    Map<String, Double> getAdditionalInformation(long id);
 
     /**
      * Edits an existing training record.
