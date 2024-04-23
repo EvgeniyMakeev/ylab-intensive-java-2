@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd"
+        logicalFilePath="db/changelog/changelog.xml">
+
+    <changeSet id="002-create-table" author="evgeniy_makeev">
+        <createTable tableName="users"
+                     schemaName="non_public"
+                     remarks="Table for storing user information">
+            <column name="login"
+                    type="VARCHAR(255)"
+                    remarks="User login">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="password"
+                    type="VARCHAR(255)"
+                    remarks="User password">
+                <constraints nullable="false" />
+            </column>
+            <column name="admin"
+                    type="BOOLEAN"
+                    defaultValueBoolean="false"
+                    remarks="Flag indicating if the user is an admin">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="types_of_training"
+                     schemaName="non_public"
+                     remarks="Table for storing types of training">
+            <column name="id"
+                    type="BIGINT"
+                    defaultValueSequenceNext="types_of_training_id_seq"
+                    remarks="Primary key for types of training">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type"
+                    type="VARCHAR(255)"
+                    remarks="Type of training">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="trainings"
+                     schemaName="non_public"
+                     remarks="Table for storing user trainings">
+            <column name="id"
+                    type="BIGINT"
+                    defaultValueSequenceNext="trainings_id_seq"
+                    remarks="Primary key for trainings">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_login"
+                    type="VARCHAR(255)"
+                    remarks="User login associated with the training">
+                <constraints foreignKeyName="trainings_user_login_users_login"
+                             references="non_public.users(login)" referencedTableSchemaName="non_public"/>
+            </column>
+            <column name="type_of_training_id"
+                    type="BIGINT"
+                    remarks="Foreign key for type of training">
+                <constraints foreignKeyName="indications_type_of_training_id_types_of_training_id"
+                             references="non_public.types_of_training(id)" referencedTableSchemaName="non_public"/>
+            </column>
+            <column name="date"
+                    type="DATE"
+                    remarks="Date of the training">
+                <constraints nullable="false"/>
+            </column>
+            <column name="duration"
+                    type="DOUBLE"
+                    remarks="Duration of the training in hours">
+                <constraints nullable="false"/>
+            </column>
+            <column name="calories_burned"
+                    type="DOUBLE"
+                    remarks="Calories burned during the training">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="additional_information"
+                     schemaName="non_public"
+                     remarks="Table for storing additional information about trainings">
+            <column name="training_id"
+                    type="BIGINT"
+                    remarks="Foreign key for training">
+                <constraints foreignKeyName="additional_information_training_id_trainings_id"
+                             references="non_public.trainings(id)" referencedTableSchemaName="non_public"/>
+            </column>
+            <column name="information"
+                    type="VARCHAR(255)"
+                    remarks="Information about the training">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value"
+                    type="DOUBLE"
+                    remarks="Value related to the training information">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="log_events"
+                     schemaName="non_public"
+                     remarks="Table for storing log events">
+            <column name="date"
+                    type="DATE"
+                    defaultValueDate="CURRENT_DATE"
+                    remarks="Date of the log event">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_login"
+                    type="VARCHAR(255)"
+                    remarks="User login associated with the log event">
+                <constraints foreignKeyName="log_events_user_login_users_login"
+                             references="non_public.users(login)" referencedTableSchemaName="non_public"/>
+            </column>
+            <column name="message"
+                    type="VARCHAR(255)"
+                    remarks="Log message">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd"
+        logicalFilePath="db/changelog/changelog.xml">
+
+    <changeSet id="004-insert-data" author="evgeniy_makeev">
+        <insert tableName="trainings" schemaName="non_public">
+            <column name="user_login" value="DemoUser"/>
+            <column name="type_of_training_id" value="1"/>
+            <column name="date" value="2024-02-02"/>
+            <column name="duration" value="175.0"/>
+            <column name="calories_burned" value="153.5"/>
+        </insert>
+
+        <insert tableName="trainings" schemaName="non_public">
+            <column name="user_login" value="DemoUser"/>
+            <column name="type_of_training_id" value="1"/>
+            <column name="date" value="2024-01-02"/>
+            <column name="duration" value="215.0"/>
+            <column name="calories_burned" value="60.5"/>
+        </insert>
+
+        <insert tableName="trainings" schemaName="non_public">
+            <column name="user_login" value="DemoUser"/>
+            <column name="type_of_training_id" value="1"/>
+            <column name="date" value="2024-05-02"/>
+            <column name="duration" value="105.0"/>
+            <column name="calories_burned" value="600.5"/>
+        </insert>
+
+        <insert tableName="trainings" schemaName="non_public">
+            <column name="user_login" value="DemoUser"/>
+            <column name="type_of_training_id" value="1"/>
+            <column name="date" value="2024-08-02"/>
+            <column name="duration" value="155.0"/>
+            <column name="calories_burned" value="550.5"/>
+        </insert>
+
+        <insert tableName="trainings" schemaName="non_public">
+            <column name="user_login" value="DemoUser"/>
+            <column name="type_of_training_id" value="1"/>
+            <column name="date" value="2024-07-02"/>
+            <column name="duration" value="20.0"/>
+            <column name="calories_burned" value="70.5"/>
+        </insert>
+
+        <insert tableName="trainings" schemaName="non_public">
+            <column name="user_login" value="DemoUser"/>
+            <column name="type_of_training_id" value="2"/>
+            <column name="date" value="2024-10-02"/>
+            <column name="duration" value="115.0"/>
+            <column name="calories_burned" value="1070.5"/>
+        </insert>
+
+        <insert tableName="trainings" schemaName="non_public">
+            <column name="user_login" value="DemoUser"/>
+            <column name="type_of_training_id" value="2"/>
+            <column name="date" value="2024-11-02"/>
+            <column name="duration" value="60.0"/>
+            <column name="calories_burned" value="365.5"/>
+        </insert>
+
+        <insert tableName="trainings" schemaName="non_public">
+            <column name="user_login" value="DemoUser"/>
+            <column name="type_of_training_id" value="2"/>
+            <column name="date" value="2024-04-02"/>
+            <column name="duration" value="175.1"/>
+            <column name="calories_burned" value="650.5"/>
+        </insert>
+
+        <insert tableName="trainings" schemaName="non_public">
+            <column name="user_login" value="DemoUser"/>
+            <column name="type_of_training_id" value="2"/>
+            <column name="date" value="2024-09-02"/>
+            <column name="duration" value="22.0"/>
+            <column name="calories_burned" value="75.5"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
